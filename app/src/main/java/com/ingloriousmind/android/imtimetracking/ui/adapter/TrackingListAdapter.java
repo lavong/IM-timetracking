@@ -44,6 +44,11 @@ public class TrackingListAdapter extends BaseAdapter {
     private StringBuilder sb = new StringBuilder();
 
     /**
+     * default list item title
+     */
+    private final String unnamedTitle;
+
+    /**
      * list item click listener
      */
     private class TrackingItemClickListener implements View.OnClickListener {
@@ -100,6 +105,7 @@ public class TrackingListAdapter extends BaseAdapter {
         this.inflater = LayoutInflater.from(ctx);
         setTrackings(trackings);
         this.listener = listener;
+        this.unnamedTitle = ctx.getString(R.string.list_item_tracking_unnamed_title);
     }
 
     /**
@@ -161,8 +167,7 @@ public class TrackingListAdapter extends BaseAdapter {
         holder.clock.setText(DateUtils.formatElapsedTime(sb, t.getDuration() / 1000));
 
         // title
-        if (!TextUtils.isEmpty(t.getTitle()))
-            holder.title.setText(t.getTitle());
+        holder.title.setText(TextUtils.isEmpty(t.getTitle()) ? unnamedTitle : t.getTitle());
 
         // buttons
         TrackingItemClickListener clickListener = new TrackingItemClickListener(position);

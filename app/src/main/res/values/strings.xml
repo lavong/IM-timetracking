@@ -16,5 +16,6 @@
     <string name="dialog_tracking_edit_btn_save">Save</string>
     <string name="list_item_tracking_initial_time">00:00</string>
     <string name="list_item_tracking_unnamed_title">unnamed tracking</string>
+    <string name="action_export_pdf">Share as PDF</string>
 
 </resources>

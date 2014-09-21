@@ -3,6 +3,8 @@ package com.ingloriousmind.android.imtimetracking.ui.activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,10 +22,12 @@ import com.ingloriousmind.android.imtimetracking.controller.TimeTrackingControll
 import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.ui.adapter.TrackingListAdapter;
+import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.EditTrackingDialog;
 import com.ingloriousmind.android.imtimetracking.util.L;
 import com.ingloriousmind.android.imtimetracking.util.RedirectFacade;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -150,6 +154,47 @@ public class HomeActivity extends ListActivity {
         }
     }
 
+    private class ExportAndSharePdfTask extends AsyncTask<Void, Void, Void> {
+
+        private File pdfFile;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            pdfFile = TimeTrackingController.exportPdf(HomeActivity.this);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            if (pdfFile != null && pdfFile.exists()) {
+                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_SUBJECT, pdfFile.getName());
+                intent.setType("application/pdf");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pdfFile));
+                startActivity(Intent.createChooser(intent, "Send PDF export"));
+            } else {
+                DialogFactory.newTwoButtonDialog(HomeActivity.this, "Failed Exporting PDF", "Something went wrong", "Retry", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        new ExportAndSharePdfTask().execute();
+                    }
+                }, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+            }
+        }
+    }
+
 
     /**
      * {@inheritDoc}
@@ -269,6 +314,9 @@ public class HomeActivity extends ListActivity {
         switch (item.getItemId()) {
             case R.id.action_about:
                 RedirectFacade.goAbout(this);
+                return true;
+            case R.id.action_export_pdf:
+                new ExportAndSharePdfTask().execute();
                 return true;
         }
         return super.onOptionsItemSelected(item);

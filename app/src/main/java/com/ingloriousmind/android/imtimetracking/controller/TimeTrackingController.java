@@ -1,11 +1,25 @@
 package com.ingloriousmind.android.imtimetracking.controller;
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.ingloriousmind.android.imtimetracking.Config;
+import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
 import com.ingloriousmind.android.imtimetracking.util.L;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
@@ -103,16 +117,6 @@ public class TimeTrackingController {
     }
 
     /**
-     * resumes time tracking
-     *
-     * @return the timer task
-     */
-    public static Tracking resume() {
-        stopTimer();
-        return start(tracking, listener);
-    }
-
-    /**
      * cancels timer
      */
     private static void stopTimer() {
@@ -164,5 +168,62 @@ public class TimeTrackingController {
             L.w(TAG, "unable to store: " + t.toString());
     }
 
+
+    public static File exportPdf(Context ctx) {
+
+        // get trackings
+        List<Tracking> trackings = fetchTrackings();
+        if (trackings == null || trackings.isEmpty())
+            return null;
+        L.d(TAG, "exporting " + trackings.size() + " trackings to pdf");
+
+        // create file
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String todayString = sdf.format(new Date(System.currentTimeMillis()));
+        String pdfFileName = "im-timetracking-" + todayString + ".pdf";
+        File appsPrivateDir = ctx.getExternalFilesDir(null);
+        appsPrivateDir.mkdirs();
+        File pdfFile = new File(appsPrivateDir, pdfFileName);
+
+        // create pdf
+        Paint p = new Paint();
+        p.setTextSize(10);
+        p.setColor(Color.BLACK);
+        PdfDocument doc = new PdfDocument();
+        int a4Width = (int) (210 / 25.4 * 72);
+        int a4Height = (int) (297 / 25.4 * 72);
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(a4Width, a4Height, 1).create();
+        PdfDocument.Page page = doc.startPage(pageInfo);
+
+        // write pdf entries
+        Canvas c = page.getCanvas();
+        int lineHeight = 20;
+        int leftMargin = 5;
+        StringBuffer sb = new StringBuffer();
+        String unnamed = ctx.getString(R.string.list_item_tracking_unnamed_title);
+        for (int i = 0; i < trackings.size(); i++) {
+            Tracking t = trackings.get(i);
+            sb.setLength(0);
+            sb.append(sdf.format(new Date(t.getCreated()))).append(" ");
+            int minutes = (int) t.getDuration() / 60 / 1000;
+            sb.append(minutes / 60).append("h ").append(minutes % 60).append("m | ");
+            sb.append(TextUtils.isEmpty(t.getTitle()) ? unnamed : t.getTitle());
+            c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, p);
+        }
+        doc.finishPage(page);
+
+        try {
+            // write to file
+            L.v(TAG, "writing pdf file " + pdfFile.getAbsolutePath());
+            doc.writeTo(new FileOutputStream(pdfFile));
+        } catch (IOException e) {
+            Log.e(TAG, "failed writing pdf file", e);
+            return null;
+        } finally {
+            doc.close();
+        }
+
+        return pdfFile;
+    }
 
 }
