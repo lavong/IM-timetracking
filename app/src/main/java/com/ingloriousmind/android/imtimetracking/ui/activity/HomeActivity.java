@@ -177,15 +177,15 @@ public class HomeActivity extends ListActivity {
                 intent.putExtra(Intent.EXTRA_SUBJECT, pdfFile.getName());
                 intent.setType("application/pdf");
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pdfFile));
-                startActivity(Intent.createChooser(intent, "Send PDF export"));
+                startActivity(Intent.createChooser(intent, getString(R.string.home_activity_share_pdf_intent_chooser_title)));
             } else {
-                DialogFactory.newTwoButtonDialog(HomeActivity.this, "Failed Exporting PDF", "Something went wrong", "Retry", new DialogInterface.OnClickListener() {
+                DialogFactory.newTwoButtonDialog(HomeActivity.this, getString(R.string.dialog_share_pdf_error_title), getString(R.string.dialog_share_pdf_error_msg), getString(R.string.dialog_share_pdf_error_btn_retry), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         new ExportAndSharePdfTask().execute();
                     }
-                }, "Cancel", new DialogInterface.OnClickListener() {
+                }, getString(R.string.dialog_share_pdf_error_btn_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -210,7 +210,7 @@ public class HomeActivity extends ListActivity {
 
         // progress dialog
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading...");
+        progressDialog.setMessage(getString(R.string.home_activity_progress_indicator_msg));
 
         // overlay
         overlay = (RelativeLayout) findViewById(R.id.activity_home_overlay);
@@ -276,7 +276,6 @@ public class HomeActivity extends ListActivity {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Tracking t = (Tracking) adapter.getItem(position);
-        L.v(TAG, "edit: " + t.toString());
         editTracking(t);
     }
 
@@ -290,7 +289,6 @@ public class HomeActivity extends ListActivity {
         d.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                L.d(TAG, "dismissed...");
                 reloadTrackingList();
             }
         });

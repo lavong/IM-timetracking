@@ -17,5 +17,11 @@
     <string name="list_item_tracking_initial_time">00:00</string>
     <string name="list_item_tracking_unnamed_title">unnamed tracking</string>
     <string name="action_export_pdf">Share as PDF</string>
+    <string name="home_activity_share_pdf_intent_chooser_title">Send PDF export</string>
+    <string name="dialog_share_pdf_error_title">Failed Exporting PDF</string>
+    <string name="dialog_share_pdf_error_msg">Something went wrong</string>
+    <string name="dialog_share_pdf_error_btn_retry">Retry</string>
+    <string name="dialog_share_pdf_error_btn_cancel">Cancel</string>
+    <string name="home_activity_progress_indicator_msg">Loading...</string>
 
 </resources>
