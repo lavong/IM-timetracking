@@ -1,25 +1,58 @@
 apply plugin: 'com.android.application'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+repositories {
+    mavenCentral()
+}
+
 android {
-    compileSdkVersion 20
+    compileSdkVersion 19
+//    compileSdkVersion 'android-L'
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.ingloriousmind.android.imtimetracking"
         minSdkVersion 19
-        targetSdkVersion 20
+//        targetSdkVersion 'L'
+        targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1"
+    }
+    signingConfigs {
+        release {
+        }
+    }
+    if (project.hasProperty('storeFile') &&
+            project.hasProperty('storePass') &&
+            project.hasProperty('keyAlias') &&
+            project.hasProperty('keyPass')) {
+        android.signingConfigs.release.storeFile = file(storeFile)
+        android.signingConfigs.release.storePassword = storePass
+        android.signingConfigs.release.keyAlias = keyAlias
+        android.signingConfigs.release.keyPassword = keyPass
+    } else {
+        buildTypes.release.signingConfig = null
     }
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v13:20.0.0'
+
+    // ormlite
+    compile 'com.j256.ormlite:ormlite-android:4.48+'
 }

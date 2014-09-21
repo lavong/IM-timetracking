@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:descendantFocusability="blocksDescendants"
+    android:padding="4dp">
+
+    <TextView
+        android:id="@+id/list_item_tracking_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        android:minWidth="?android:attr/listPreferredItemHeightLarge"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="6dp"
+        android:layout_marginEnd="6dp"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        android:gravity="center_vertical"
+        android:textColor="@color/im_green"
+        android:text="@string/list_item_tracking_initial_time" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_tracking_btn_delete"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_menu_delete" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_item_tracking_btn_resume_pause"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/list_item_tracking_btn_delete"
+        android:layout_toStartOf="@id/list_item_tracking_btn_delete"
+        android:src="@android:drawable/ic_media_play" />
+
+    <TextView
+        android:id="@+id/list_item_tracking_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/list_item_tracking_clock"
+        android:layout_toEndOf="@id/list_item_tracking_clock"
+        android:layout_toLeftOf="@id/list_item_tracking_btn_resume_pause"
+        android:layout_toStartOf="@id/list_item_tracking_btn_resume_pause"
+        android:layout_centerVertical="true"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:text="@string/list_item_tracking_unnamed_title" />
+
+</RelativeLayout>

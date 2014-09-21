@@ -1,6 +1,71 @@
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeActivity" />
+    tools:context=".HomeActivity">
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:id="@+id/activity_home_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_overlay"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/activity_home_overlay_time"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textColor="@color/im_green"
+            android:text="@string/activity_home_overlay_initial_time"
+            android:textSize="42sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/activity_home_overlay_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/activity_home_overlay_time"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:text="@string/activity_home_overlay_unnamed_tracking_title"
+            android:textSize="18sp"
+            android:padding="18dp" />
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/activity_home_action_add"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/action_btn_add" />
+
+    <ImageButton
+        android:id="@+id/activity_home_action_pause"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/action_btn_pause"
+        android:visibility="gone" />
+
+</FrameLayout>
+
+
+
