@@ -23,5 +23,6 @@
     <string name="dialog_share_pdf_error_btn_retry">Retry</string>
     <string name="dialog_share_pdf_error_btn_cancel">Cancel</string>
     <string name="home_activity_progress_indicator_msg">Loading...</string>
+    <string name="export_total">total:</string>
 
 </resources>

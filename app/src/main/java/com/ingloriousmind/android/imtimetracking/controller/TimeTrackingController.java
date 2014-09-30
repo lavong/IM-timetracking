@@ -189,19 +189,24 @@ public class TimeTrackingController {
         Paint p = new Paint();
         p.setTextSize(10);
         p.setColor(Color.BLACK);
+        Paint gp = new Paint(p);
+        gp.setColor(ctx.getResources().getColor(R.color.im_green));
+        gp.setFakeBoldText(true);
         PdfDocument doc = new PdfDocument();
         int a4Width = (int) (210 / 25.4 * 72);
         int a4Height = (int) (297 / 25.4 * 72);
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(a4Width, a4Height, 1).create();
         PdfDocument.Page page = doc.startPage(pageInfo);
 
-        // write pdf entries
         Canvas c = page.getCanvas();
         int lineHeight = 20;
-        int leftMargin = 5;
+        int leftMargin = 20;
         StringBuffer sb = new StringBuffer();
         String unnamed = ctx.getString(R.string.list_item_tracking_unnamed_title);
-        for (int i = 0; i < trackings.size(); i++) {
+        int totalMinutes = 0;
+        int i;
+        // write entries
+        for (i = 0; i < trackings.size(); i++) {
             Tracking t = trackings.get(i);
             sb.setLength(0);
             sb.append(sdf.format(new Date(t.getCreated()))).append(" ");
@@ -209,7 +214,14 @@ public class TimeTrackingController {
             sb.append(minutes / 60).append("h ").append(minutes % 60).append("m | ");
             sb.append(TextUtils.isEmpty(t.getTitle()) ? unnamed : t.getTitle());
             c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, p);
+            totalMinutes += minutes;
         }
+        // write total
+        sb.setLength(0);
+        sb.append(ctx.getResources().getString(R.string.export_total)).append("  ");
+        sb.append(totalMinutes / 60).append("h ").append(totalMinutes % 60).append("m");
+        c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, gp);
+
         doc.finishPage(page);
 
         try {
