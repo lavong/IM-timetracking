@@ -23,7 +23,7 @@
             android:layout_centerVertical="true"
             android:gravity="center"
             android:textColor="@color/im_green"
-            android:text="@string/activity_home_overlay_initial_time"
+            android:text="@string/initial_time"
             android:textSize="42sp"
             android:textStyle="bold" />
 

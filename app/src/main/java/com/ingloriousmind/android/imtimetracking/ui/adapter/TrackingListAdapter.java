@@ -1,7 +1,6 @@
 package com.ingloriousmind.android.imtimetracking.ui.adapter;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,11 +43,6 @@ public class TrackingListAdapter extends BaseAdapter {
     private StringBuilder sb = new StringBuilder();
 
     /**
-     * default list item title
-     */
-    private final String unnamedTitle;
-
-    /**
      * list item click listener
      */
     private class TrackingItemClickListener implements View.OnClickListener {
@@ -63,12 +57,10 @@ public class TrackingListAdapter extends BaseAdapter {
             if (listener != null) {
                 switch (v.getId()) {
                     case R.id.list_item_tracking_btn_delete:
-                        listener.onDelete(trackings.get(pos));
-                        trackings.remove(pos);
-                        notifyDataSetChanged();
+                        listener.onDelete(pos, trackings.get(pos));
                         break;
                     case R.id.list_item_tracking_btn_resume_pause:
-                        listener.onResume(trackings.get(pos));
+                        listener.onResume(pos, trackings.get(pos));
                         break;
                 }
             }
@@ -79,9 +71,9 @@ public class TrackingListAdapter extends BaseAdapter {
      * list item callback interface
      */
     public interface TrackingItemActionListener {
-        void onDelete(Tracking t);
+        void onDelete(int pos, Tracking t);
 
-        void onResume(Tracking t);
+        void onResume(int pos, Tracking t);
     }
 
     /**
@@ -105,7 +97,6 @@ public class TrackingListAdapter extends BaseAdapter {
         this.inflater = LayoutInflater.from(ctx);
         setTrackings(trackings);
         this.listener = listener;
-        this.unnamedTitle = ctx.getString(R.string.list_item_tracking_unnamed_title);
     }
 
     /**
@@ -135,7 +126,9 @@ public class TrackingListAdapter extends BaseAdapter {
      */
     @Override
     public Object getItem(int position) {
-        return trackings.get(position);
+        if (position >= 0 && position < trackings.size())
+            return trackings.get(position);
+        return null;
     }
 
     /**
@@ -167,14 +160,26 @@ public class TrackingListAdapter extends BaseAdapter {
         holder.clock.setText(DateUtils.formatElapsedTime(sb, t.getDuration() / 1000));
 
         // title
-        holder.title.setText(TextUtils.isEmpty(t.getTitle()) ? unnamedTitle : t.getTitle());
+        holder.title.setText(t.getTitle());
 
         // buttons
         TrackingItemClickListener clickListener = new TrackingItemClickListener(position);
         holder.delete.setOnClickListener(clickListener);
         holder.resumeOrPause.setOnClickListener(clickListener);
-        holder.resumeOrPause.setImageResource(t.isTracking() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
+        holder.resumeOrPause.setImageResource(t.isTracking() ? R.drawable.action_btn_pause : R.drawable.action_btn_play);
 
         return convertView;
+    }
+
+    /**
+     * remove item at given position
+     *
+     * @param position the items position to remove
+     */
+    public void removeTracking(int position) {
+        if (position >= 0 && position < trackings.size()) {
+            trackings.remove(position);
+            notifyDataSetChanged();
+        }
     }
 }

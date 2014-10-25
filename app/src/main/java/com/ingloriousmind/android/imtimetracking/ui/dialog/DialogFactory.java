@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.View;
-import android.widget.TextView;
 
 /**
  * dialog factory
@@ -26,37 +24,26 @@ public class DialogFactory {
     }
 
     /**
-     * @see #newTwoButtonDialog(android.content.Context, String, android.view.View, String, android.content.DialogInterface.OnClickListener, String, android.content.DialogInterface.OnClickListener)
-     */
-    public static Dialog newTwoButtonDialog(Context ctx, String title, String text, String okButtonLabel,
-                                            DialogInterface.OnClickListener okButtonOnClickListener, String cancelButtonLabel,
-                                            DialogInterface.OnClickListener cancelButtonOnClickListener) {
-        TextView textView = new TextView(ctx);
-        textView.setText(text);
-        return newTwoButtonDialog(ctx, title, textView, okButtonLabel, okButtonOnClickListener, cancelButtonLabel,
-                cancelButtonOnClickListener);
-    }
-
-    /**
      * instantiates a two-button alert dialog with given title, content view, button labels and button listeners.
      *
      * @param ctx               a context
      * @param title             dialog title
-     * @param contentView       the dialog's content view
+     * @param text              dialog message
      * @param okButtonLabel     positive button label
      * @param okListener        positive button click listener. null, for default dismiss action.
      * @param cancelButtonLabel negative button label
      * @param cancelListener    negative button click listener. null, for default dismiss action.
      * @return the alert dialog
      */
-    public static Dialog newTwoButtonDialog(Context ctx, String title, View contentView, String okButtonLabel,
+    public static Dialog newTwoButtonDialog(Context ctx, String title, String text, String okButtonLabel,
                                             DialogInterface.OnClickListener okListener, String cancelButtonLabel,
                                             DialogInterface.OnClickListener cancelListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle(title);
-        builder.setView(contentView);
+        builder.setMessage(text);
         builder.setPositiveButton(okButtonLabel, okListener != null ? okListener : new DismissListener());
         builder.setNegativeButton(cancelButtonLabel, cancelListener != null ? cancelListener : new DismissListener());
         return builder.create();
     }
+
 }

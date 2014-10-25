@@ -27,7 +27,7 @@ public class Tracking implements Serializable {
      * title
      */
     @DatabaseField(index = true)
-    private String title;
+    private String title = "unnamed";
 
     /**
      * description

@@ -6,6 +6,13 @@
         android:id="@+id/action_export_pdf"
         android:title="@string/action_export_pdf"
         android:orderInCategory="1"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_pdf_green" />
+
+    <item
+        android:id="@+id/action_clear"
+        android:title="@string/action_clear"
+        android:orderInCategory="1"
         android:showAsAction="never" />
 
     <item

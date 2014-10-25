@@ -218,7 +218,7 @@ public class TimeTrackingController {
         }
         // write total
         sb.setLength(0);
-        sb.append(ctx.getResources().getString(R.string.export_total)).append("  ");
+        sb.append(ctx.getResources().getString(R.string.total)).append("  ");
         sb.append(totalMinutes / 60).append("h ").append(totalMinutes % 60).append("m");
         c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, gp);
 

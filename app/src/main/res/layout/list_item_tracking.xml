@@ -27,7 +27,8 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@android:drawable/ic_menu_delete" />
+        android:src="@drawable/action_btn_delete"
+        android:background="@null" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -36,7 +37,8 @@
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/list_item_tracking_btn_delete"
         android:layout_toStartOf="@id/list_item_tracking_btn_delete"
-        android:src="@android:drawable/ic_media_play" />
+        android:src="@drawable/action_btn_play"
+        android:background="@null" />
 
     <TextView
         android:id="@+id/list_item_tracking_title"

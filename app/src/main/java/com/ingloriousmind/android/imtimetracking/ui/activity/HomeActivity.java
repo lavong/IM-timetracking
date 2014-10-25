@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -54,6 +56,7 @@ public class HomeActivity extends ListActivity {
     private TextView overlayTitle;
     private TextView overlayTime;
     private ProgressDialog progressDialog;
+    private TextView footerTotal;
 
     /**
      * action button click listener
@@ -96,13 +99,24 @@ public class HomeActivity extends ListActivity {
     private class TrackingListItemListener implements TrackingListAdapter.TrackingItemActionListener {
 
         @Override
-        public void onDelete(Tracking t) {
-            L.d(TAG, "delete: " + t.toString());
-            TimeTrackingController.removeTracking(t);
+        public void onDelete(final int pos, final Tracking t) {
+            String title = getString(R.string.dialog_title_delete);
+            String msg = getString(R.string.dialog_msg_delete, t.getTitle());
+            String delete = getString(R.string.dialog_btn_delete);
+            String cancel = getString(R.string.dialog_btn_cancel);
+            DialogFactory.newTwoButtonDialog(HomeActivity.this, title, msg, delete, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    L.d(TAG, "delete: " + t.toString());
+                    TimeTrackingController.removeTracking(t);
+                    adapter.removeTracking(pos);
+                    reloadTrackingList();
+                }
+            }, cancel, null).show();
         }
 
         @Override
-        public void onResume(Tracking t) {
+        public void onResume(int pos, Tracking t) {
             L.d(TAG, "resume: " + t.toString());
             startTracking(t);
         }
@@ -113,12 +127,16 @@ public class HomeActivity extends ListActivity {
      */
     private class LoadTrackingsTask extends AsyncTask<Void, Void, Void> {
 
-
+        private long total;
         private List<Tracking> trackings;
 
         @Override
         protected Void doInBackground(Void... params) {
             trackings = TimeTrackingController.fetchTrackings();
+
+            for (Tracking t : trackings)
+                total += t.getDuration();
+
             return null;
         }
 
@@ -130,6 +148,33 @@ public class HomeActivity extends ListActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             adapter.setTrackings(trackings);
+            String totalString = total > 0 ? DateUtils.formatElapsedTime(total / 1000) : getString(R.string.initial_time);
+            footerTotal.setText(totalString);
+            progressDialog.dismiss();
+        }
+    }
+
+    /**
+     * async task deleting all tasks
+     */
+    private class DeleteTrackingsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            for (Tracking t : TimeTrackingController.fetchTrackings())
+                TimeTrackingController.removeTracking(t);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            adapter.setTrackings(null);
+            footerTotal.setText(getString(R.string.initial_time));
             progressDialog.dismiss();
         }
     }
@@ -208,6 +253,12 @@ public class HomeActivity extends ListActivity {
         adapter = new TrackingListAdapter(this, null, new TrackingListItemListener());
         setListAdapter(adapter);
 
+        // list footer
+        View footer = LayoutInflater.from(this).inflate(R.layout.list_footer_total, null, false);
+        footerTotal = (TextView) footer.findViewById(R.id.activity_home_total);
+        getListView().addFooterView(footer);
+        getListView().setFooterDividersEnabled(false);
+
         // progress dialog
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.home_activity_progress_indicator_msg));
@@ -276,7 +327,9 @@ public class HomeActivity extends ListActivity {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Tracking t = (Tracking) adapter.getItem(position);
-        editTracking(t);
+        if (t != null) {
+            editTracking(t);
+        }
     }
 
     /**
@@ -312,10 +365,22 @@ public class HomeActivity extends ListActivity {
         switch (item.getItemId()) {
             case R.id.action_about:
                 RedirectFacade.goAbout(this);
-                return true;
+                break;
             case R.id.action_export_pdf:
                 new ExportAndSharePdfTask().execute();
-                return true;
+                break;
+            case R.id.action_clear:
+                String title = getString(R.string.dialog_title_delete_all);
+                String msg = getString(R.string.dialog_msg_delete_all);
+                String delete = getString(R.string.dialog_btn_delete);
+                String cancel = getString(R.string.dialog_btn_cancel);
+                DialogFactory.newTwoButtonDialog(HomeActivity.this, title, msg, delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new DeleteTrackingsTask().execute();
+                    }
+                }, cancel, null).show();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -353,6 +418,5 @@ public class HomeActivity extends ListActivity {
         actionButtonPause.setVisibility(View.GONE);
         reloadTrackingList();
     }
-
 
 }
