@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +27,7 @@ import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.EditTrackingDialog;
 import com.ingloriousmind.android.imtimetracking.util.L;
 import com.ingloriousmind.android.imtimetracking.util.RedirectFacade;
+import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
 import java.io.File;
 import java.util.List;
@@ -148,8 +148,7 @@ public class HomeActivity extends ListActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             adapter.setTrackings(trackings);
-            String totalString = total > 0 ? DateUtils.formatElapsedTime(total / 1000) : getString(R.string.initial_time);
-            footerTotal.setText(totalString);
+            footerTotal.setText(TimeUtil.getTimeString(total));
             progressDialog.dismiss();
         }
     }
@@ -174,7 +173,7 @@ public class HomeActivity extends ListActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             adapter.setTrackings(null);
-            footerTotal.setText(getString(R.string.initial_time));
+            footerTotal.setText(TimeUtil.getTimeString(0));
             progressDialog.dismiss();
         }
     }

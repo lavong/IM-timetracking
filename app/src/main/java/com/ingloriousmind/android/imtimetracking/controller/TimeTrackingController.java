@@ -1,10 +1,15 @@
 package com.ingloriousmind.android.imtimetracking.controller;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,6 +19,7 @@ import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
 import com.ingloriousmind.android.imtimetracking.util.L;
+import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,7 +133,11 @@ public class TimeTrackingController {
         }
     }
 
-
+    /**
+     * fetches persisted {@link com.ingloriousmind.android.imtimetracking.model.Tracking} from db
+     *
+     * @return list of trackings
+     */
     public static List<Tracking> fetchTrackings() {
         List<Tracking> trackings = DbHelper.getInstance().fetchTrackings();
         if (Config.debug) {
@@ -138,12 +148,22 @@ public class TimeTrackingController {
         return trackings;
     }
 
+    /**
+     * fetches the most recent tracking from db
+     *
+     * @return most recent tracking
+     */
     public static Tracking fetchMostRecentTracking() {
         Tracking mostRecentTracking = DbHelper.getInstance().fetchMostRecentTracking();
         L.d(TAG, "most recent: " + mostRecentTracking);
         return mostRecentTracking;
     }
 
+    /**
+     * removes given tracking from db
+     *
+     * @param t tracking to remove
+     */
     public static void removeTracking(Tracking t) {
         if (t == null)
             return;
@@ -156,6 +176,11 @@ public class TimeTrackingController {
             L.w(TAG, "unable to remove: " + t.toString());
     }
 
+    /**
+     * persists given tracking
+     *
+     * @param t tracking to persist
+     */
     public static void storeTracking(Tracking t) {
         if (t == null)
             return;
@@ -168,7 +193,12 @@ public class TimeTrackingController {
             L.w(TAG, "unable to store: " + t.toString());
     }
 
-
+    /**
+     * exports persisted trackings as pdf file
+     *
+     * @param ctx a context
+     * @return pdf file
+     */
     public static File exportPdf(Context ctx) {
 
         // get trackings
@@ -186,10 +216,12 @@ public class TimeTrackingController {
         File pdfFile = new File(appsPrivateDir, pdfFileName);
 
         // create pdf
-        Paint p = new Paint();
+        TextPaint p = new TextPaint();
         p.setTextSize(10);
         p.setColor(Color.BLACK);
-        Paint gp = new Paint(p);
+        p.setTypeface(Typeface.MONOSPACE);
+        p.setAntiAlias(true);
+        TextPaint gp = new TextPaint(p);
         gp.setColor(ctx.getResources().getColor(R.color.im_green));
         gp.setFakeBoldText(true);
         PdfDocument doc = new PdfDocument();
@@ -199,28 +231,43 @@ public class TimeTrackingController {
         PdfDocument.Page page = doc.startPage(pageInfo);
 
         Canvas c = page.getCanvas();
-        int lineHeight = 20;
-        int leftMargin = 20;
-        StringBuffer sb = new StringBuffer();
+        int padding = ctx.getResources().getInteger(R.integer.export_pdf_page_padding);
         String unnamed = ctx.getString(R.string.list_item_tracking_unnamed_title);
-        int totalMinutes = 0;
-        int i;
-        // write entries
-        for (i = 0; i < trackings.size(); i++) {
-            Tracking t = trackings.get(i);
-            sb.setLength(0);
+        StringBuffer sb = new StringBuffer();
+        long totalDuration = 0;
+
+        // prepare entries
+        for (Tracking t : trackings) {
             sb.append(sdf.format(new Date(t.getCreated()))).append(" ");
-            int minutes = (int) t.getDuration() / 60 / 1000;
-            sb.append(minutes / 60).append("h ").append(minutes % 60).append("m | ");
+            sb.append(TimeUtil.getTimeString(t.getDuration())).append(" | ");
             sb.append(TextUtils.isEmpty(t.getTitle()) ? unnamed : t.getTitle());
-            c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, p);
-            totalMinutes += minutes;
+            sb.append("\n");
+            totalDuration += t.getDuration();
         }
+
+        // write entries - TODO care about pagination at some point
+        c.save();
+        c.translate(padding, padding);
+        StaticLayout sl = new StaticLayout(sb.toString(), p, a4Width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, false);
+        sl.draw(c);
+
         // write total
+        c.translate(0, sl.getHeight());
         sb.setLength(0);
         sb.append(ctx.getResources().getString(R.string.total)).append("  ");
-        sb.append(totalMinutes / 60).append("h ").append(totalMinutes % 60).append("m");
-        c.drawText(sb.toString(), leftMargin, (i + 1) * lineHeight, gp);
+        sb.append(TimeUtil.getTimeString(totalDuration));
+        sl = new StaticLayout(sb.toString(), gp, a4Width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, false);
+        sl.draw(c);
+        c.restore();
+
+        // draw icon
+        c.save();
+        c.translate(a4Width * 0.80f, a4Height * 0.85f);
+        Bitmap appIcon = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
+        appIcon = Bitmap.createScaledBitmap(appIcon, 80, 80, true);
+        c.drawBitmap(appIcon, 0, 0, p);
+        c.restore();
+        appIcon.recycle();
 
         doc.finishPage(page);
 
