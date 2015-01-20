@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.ingloriousmind.android.imtimetracking.ui.activity.AboutActivity;
 import com.ingloriousmind.android.imtimetracking.ui.activity.HomeActivity;
+import com.ingloriousmind.android.imtimetracking.ui.activity.PdfArchiveActivity;
 
 /**
  * redirect facade
@@ -30,6 +31,16 @@ public class RedirectFacade {
      */
     public static void goHome(Context ctx) {
         Intent intent = new Intent(ctx, HomeActivity.class);
+        ctx.startActivity(intent);
+    }
+
+    /**
+     * redirects to {@link com.ingloriousmind.android.imtimetracking.ui.activity.PdfArchiveActivity}
+     *
+     * @param ctx a context
+     */
+    public static void goPdfArchive(Context ctx) {
+        Intent intent = new Intent(ctx, PdfArchiveActivity.class);
         ctx.startActivity(intent);
     }
 

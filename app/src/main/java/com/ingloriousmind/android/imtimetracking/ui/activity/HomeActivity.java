@@ -1,20 +1,26 @@
 package com.ingloriousmind.android.imtimetracking.ui.activity;
 
-import android.app.ListActivity;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Outline;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ListView;
+import android.view.ViewAnimationUtils;
+import android.view.ViewOutlineProvider;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,7 +28,7 @@ import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.controller.TimeTrackingController;
 import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
-import com.ingloriousmind.android.imtimetracking.ui.adapter.TrackingListAdapter;
+import com.ingloriousmind.android.imtimetracking.ui.adapter.TrackingAdapter;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.EditTrackingDialog;
 import com.ingloriousmind.android.imtimetracking.util.L;
@@ -37,7 +43,7 @@ import java.util.List;
  *
  * @author lavong.soysavanh
  */
-public class HomeActivity extends ListActivity {
+public class HomeActivity extends Activity {
 
     /**
      * log tag
@@ -45,18 +51,19 @@ public class HomeActivity extends ListActivity {
     private static final String TAG = HomeActivity.class.getSimpleName();
 
     /**
-     * the list adapter to display
+     * recycler adapter to display
      */
-    private TrackingListAdapter adapter;
+    private TrackingAdapter adapter;
 
     // views
-    private ImageView actionButtonAdd;
-    private ImageView actionButtonPause;
+    private ImageButton actionButtonAdd;
+    private ImageButton actionButtonPause;
     private RelativeLayout overlay;
     private TextView overlayTitle;
     private TextView overlayTime;
     private ProgressDialog progressDialog;
     private TextView footerTotal;
+    private RecyclerView recycler;
 
     /**
      * action button click listener
@@ -96,7 +103,12 @@ public class HomeActivity extends ListActivity {
     /**
      * list item action listener
      */
-    private class TrackingListItemListener implements TrackingListAdapter.TrackingItemActionListener {
+    private class TrackingListItemListener implements TrackingAdapter.TrackingItemActionListener {
+
+        @Override
+        public void onEdit(int pos, Tracking t) {
+            editTracking(t);
+        }
 
         @Override
         public void onDelete(final int pos, final Tracking t) {
@@ -110,7 +122,6 @@ public class HomeActivity extends ListActivity {
                     L.d(TAG, "delete: " + t.toString());
                     TimeTrackingController.removeTracking(t);
                     adapter.removeTracking(pos);
-                    reloadTrackingList();
                 }
             }, cancel, null).show();
         }
@@ -119,6 +130,7 @@ public class HomeActivity extends ListActivity {
         public void onResume(int pos, Tracking t) {
             L.d(TAG, "resume: " + t.toString());
             startTracking(t);
+            adapter.notifyItemChanged(pos);
         }
     }
 
@@ -129,6 +141,11 @@ public class HomeActivity extends ListActivity {
 
         private long total;
         private List<Tracking> trackings;
+        private boolean postScrollTop;
+
+        public LoadTrackingsTask(boolean postScrollTop) {
+            this.postScrollTop = postScrollTop;
+        }
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -150,6 +167,9 @@ public class HomeActivity extends ListActivity {
             adapter.setTrackings(trackings);
             footerTotal.setText(TimeUtil.getTimeString(total));
             progressDialog.dismiss();
+            if (postScrollTop) {
+                recycler.smoothScrollToPosition(0);
+            }
         }
     }
 
@@ -198,6 +218,9 @@ public class HomeActivity extends ListActivity {
         }
     }
 
+    /**
+     * async task exporting pdf file and launching share intent
+     */
     private class ExportAndSharePdfTask extends AsyncTask<Void, Void, Void> {
 
         private File pdfFile;
@@ -248,15 +271,18 @@ public class HomeActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // adapter
-        adapter = new TrackingListAdapter(this, null, new TrackingListItemListener());
-        setListAdapter(adapter);
+        recycler = (RecyclerView) findViewById(R.id.activity_home_recycler);
 
-        // list footer
-        View footer = LayoutInflater.from(this).inflate(R.layout.list_footer_total, null, false);
-        footerTotal = (TextView) footer.findViewById(R.id.activity_home_total);
-        getListView().addFooterView(footer);
-        getListView().setFooterDividersEnabled(false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.scrollToPosition(0);
+        recycler.setLayoutManager(layoutManager);
+        recycler.setHasFixedSize(true);
+        recycler.setItemAnimator(new DefaultItemAnimator());
+        adapter = new TrackingAdapter(this, null, new TrackingListItemListener());
+        recycler.setAdapter(adapter);
+
+        footerTotal = (TextView) findViewById(R.id.activity_home_total);
 
         // progress dialog
         progressDialog = new ProgressDialog(this);
@@ -275,11 +301,26 @@ public class HomeActivity extends ListActivity {
         });
 
         // action buttons
-        actionButtonAdd = (ImageView) findViewById(R.id.activity_home_action_add);
-        actionButtonPause = (ImageView) findViewById(R.id.activity_home_action_pause);
+        actionButtonAdd = (ImageButton) findViewById(R.id.activity_home_action_add);
+        actionButtonPause = (ImageButton) findViewById(R.id.activity_home_action_pause);
         ActionButtonClickListener actionBtnListener = new ActionButtonClickListener();
         actionButtonAdd.setOnClickListener(actionBtnListener);
         actionButtonPause.setOnClickListener(actionBtnListener);
+
+        // action button elevation
+        ViewOutlineProvider actionButtonOutlineProvider = new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                int size = getResources().getDimensionPixelSize(R.dimen.floating_action_button_outline_size);
+                outline.setOval(0, 0, size, size);
+            }
+        };
+        actionButtonAdd.setOutlineProvider(actionButtonOutlineProvider);
+        actionButtonAdd.setClipToOutline(true);
+        actionButtonAdd.setElevation(10);
+        actionButtonPause.setOutlineProvider(actionButtonOutlineProvider);
+        actionButtonPause.setClipToOutline(true);
+        actionButtonPause.setElevation(10);
     }
 
 
@@ -294,7 +335,7 @@ public class HomeActivity extends ListActivity {
         new ResumeTask().execute();
 
         // load items
-        reloadTrackingList();
+        reloadTrackingList(false);
     }
 
     /**
@@ -315,20 +356,11 @@ public class HomeActivity extends ListActivity {
 
     /**
      * triggers async tracking list reloading
+     *
+     * @param postScrollTop true, to have have the recycler scrolls to top of the list after reloading. false, otherwise.
      */
-    private void reloadTrackingList() {
-        new LoadTrackingsTask().execute();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Tracking t = (Tracking) adapter.getItem(position);
-        if (t != null) {
-            editTracking(t);
-        }
+    private void reloadTrackingList(boolean postScrollTop) {
+        new LoadTrackingsTask(postScrollTop).execute();
     }
 
     /**
@@ -341,7 +373,7 @@ public class HomeActivity extends ListActivity {
         d.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                reloadTrackingList();
+                reloadTrackingList(false);
             }
         });
         d.show();
@@ -367,6 +399,9 @@ public class HomeActivity extends ListActivity {
                 break;
             case R.id.action_export_pdf:
                 new ExportAndSharePdfTask().execute();
+                break;
+            case R.id.action_pdf_archive:
+                RedirectFacade.goPdfArchive(this);
                 break;
             case R.id.action_clear:
                 String title = getString(R.string.dialog_title_delete_all);
@@ -398,24 +433,67 @@ public class HomeActivity extends ListActivity {
      */
     public void startTracking(final Tracking trackingToResume) {
         Tracking tracking = TimeTrackingController.start(trackingToResume, new TimeTrackingListener());
-        if (!TextUtils.isEmpty(tracking.getTitle()))
-            overlayTitle.setText(tracking.getTitle());
-        else
-            overlayTitle.setText("unnamed tracking");
-        overlay.setVisibility(View.VISIBLE);
-        actionButtonAdd.setVisibility(View.GONE);
-        actionButtonPause.setVisibility(View.VISIBLE);
+        if (trackingToResume == null) {
+            adapter.addTracking(tracking);
+        }
+        overlayTitle.setText(TextUtils.isEmpty(tracking.getTitle())
+                        ? getString(R.string.activity_home_overlay_unnamed_tracking_title)
+                        : tracking.getTitle()
+        );
+        revealOverlay();
     }
 
     /**
      * stops time tracking and hides overlay
      */
     public void stopTracking() {
-        TimeTrackingController.stop();
-        overlay.setVisibility(View.GONE);
-        actionButtonAdd.setVisibility(View.VISIBLE);
-        actionButtonPause.setVisibility(View.GONE);
-        reloadTrackingList();
+        Tracking t = TimeTrackingController.stop();
+        hideOverlay();
+        int pos = adapter.indexOf(t);
+        if (pos > 0) {
+            adapter.notifyItemMoved(pos, 0);
+        }
+        recycler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                reloadTrackingList(true);
+            }
+        }, 300);
+    }
+
+    /**
+     * reveals {@link #overlay}
+     */
+    public void revealOverlay() {
+        int cx = (overlay.getLeft() + overlay.getRight()) / 2;
+        int cy = (overlay.getTop() + overlay.getBottom()) / 2;
+        int clippingCircleRadius = Math.max(overlay.getWidth(), overlay.getHeight());
+        Animator anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, 0, clippingCircleRadius);
+        overlay.setVisibility(View.VISIBLE);
+        anim.start();
+        actionButtonAdd.setVisibility(View.GONE);
+        actionButtonPause.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * hides {@link #overlay}
+     */
+    public void hideOverlay() {
+        int cx = (overlay.getLeft() + overlay.getRight()) / 2;
+        int cy = (overlay.getTop() + overlay.getBottom()) / 2;
+        int initialRadius = overlay.getWidth();
+        Animator anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, initialRadius, 0);
+        anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                overlay.setVisibility(View.INVISIBLE);
+                actionButtonAdd.setVisibility(View.VISIBLE);
+                actionButtonPause.setVisibility(View.GONE);
+                //recycler.smoothScrollToPosition(0);
+            }
+        });
+        anim.start();
     }
 
 }

@@ -10,6 +10,12 @@
         android:icon="@drawable/ic_pdf_green" />
 
     <item
+        android:id="@+id/action_pdf_archive"
+        android:title="@string/action_pdf_archive"
+        android:orderInCategory="1"
+        android:showAsAction="never" />
+
+    <item
         android:id="@+id/action_clear"
         android:title="@string/action_clear"
         android:orderInCategory="1"

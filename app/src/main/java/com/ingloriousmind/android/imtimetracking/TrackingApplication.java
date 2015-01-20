@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.util.Log;
 
 import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
+import com.ingloriousmind.android.imtimetracking.util.FileUtil;
 
 /**
  * IM timetracking application
@@ -35,6 +36,13 @@ public class TrackingApplication extends Application {
             Config.versionName = pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             Log.w(TAG, "failed reading package versions", e);
+        }
+
+        Log.v(TAG, "  establishing folder structure");
+        FileUtil.appDir = getExternalFilesDir(null);
+        if (FileUtil.appDir != null) {
+            FileUtil.appDir.mkdirs();
+            Log.v(TAG, "    " + FileUtil.appDir.getAbsolutePath());
         }
 
         Log.v(TAG, "  initializing persistence manager");

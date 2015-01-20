@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.ingloriousmind.android.imtimetracking">
 
-    <!-- workaround for android gradle manifest merger -->
-    <uses-sdk tools:node="replace" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".TrackingApplication"
@@ -25,6 +24,11 @@
             android:name=".ui.activity.AboutActivity"
             android:parentActivityName=".ui.activity.HomeActivity"
             android:label="@string/activity_about_title" />
+
+        <activity
+            android:name=".ui.activity.PdfArchiveActivity"
+            android:parentActivityName=".ui.activity.PdfArchiveActivity"
+            android:label="@string/activity_pdf_archive" />
 
     </application>
 

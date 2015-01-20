@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
 import android.text.Layout;
@@ -18,6 +19,7 @@ import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
+import com.ingloriousmind.android.imtimetracking.util.FileUtil;
 import com.ingloriousmind.android.imtimetracking.util.L;
 import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
@@ -211,9 +213,7 @@ public class TimeTrackingController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String todayString = sdf.format(new Date(System.currentTimeMillis()));
         String pdfFileName = "im-timetracking-" + todayString + ".pdf";
-        File appsPrivateDir = ctx.getExternalFilesDir(null);
-        appsPrivateDir.mkdirs();
-        File pdfFile = new File(appsPrivateDir, pdfFileName);
+        File pdfFile = new File(FileUtil.appDir, pdfFileName);
 
         // create pdf
         TextPaint p = new TextPaint();
@@ -263,9 +263,11 @@ public class TimeTrackingController {
         // draw icon
         c.save();
         c.translate(a4Width * 0.80f, a4Height * 0.85f);
+        Paint iconPaint = new Paint();
+        iconPaint.setAlpha(42);
         Bitmap appIcon = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
         appIcon = Bitmap.createScaledBitmap(appIcon, 80, 80, true);
-        c.drawBitmap(appIcon, 0, 0, p);
+        c.drawBitmap(appIcon, 0, 0, iconPaint);
         c.restore();
         appIcon.recycle();
 

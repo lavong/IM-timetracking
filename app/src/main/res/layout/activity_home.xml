@@ -4,17 +4,24 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
-    <ListView
-        android:id="@android:id/list"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/activity_home_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginBottom="?android:attr/listPreferredItemHeight" />
+
+    <include
+        layout="@layout/list_footer_total"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" />
 
     <RelativeLayout
         android:id="@+id/activity_home_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black_overlay"
-        android:visibility="gone">
+        android:visibility="invisible">
 
         <TextView
             android:id="@+id/activity_home_overlay_time"
@@ -42,11 +49,10 @@
 
     <ImageButton
         android:id="@+id/activity_home_action_add"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="@dimen/floating_action_button_size"
+        android:layout_height="@dimen/floating_action_button_size"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:scaleType="fitXY"
@@ -54,11 +60,10 @@
 
     <ImageButton
         android:id="@+id/activity_home_action_pause"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="@dimen/floating_action_button_size"
+        android:layout_height="@dimen/floating_action_button_size"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:scaleType="fitXY"
