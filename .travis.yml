@@ -5,4 +5,7 @@ android:
     - build-tools-22.0.0
     - android-22
 
-script: ./gradlew assembleDebug
+script:
+  - ./gradlew assembleDebug
+  - ls -l app/build/outputs/apk/
+  - [ -f app/build/outputs/apk/app-debug.apk ] && echo "debug apk present" || echo "debug apk missing"
