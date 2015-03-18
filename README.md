@@ -1,5 +1,6 @@
 IM timetracking
 ===============
+[![Build Status](https://travis-ci.org/lavong/IM-timetracking.svg)](https://travis-ci.org/lavong/IM-timetracking)
 
 IM timetracking ("I'm timetracking") is a simplistic time tracking app.
 
