@@ -249,7 +249,7 @@ public class TimeTrackingController {
         c.translate(a4Width * 0.80f, a4Height * 0.85f);
         Paint iconPaint = new Paint();
         iconPaint.setAlpha(42);
-        Bitmap appIcon = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
+        Bitmap appIcon = BitmapFactory.decodeResource(ctx.getResources(), R.mipmap.ic_launcher);
         appIcon = Bitmap.createScaledBitmap(appIcon, 80, 80, true);
         c.drawBitmap(appIcon, 0, 0, iconPaint);
         c.restore();
