@@ -1,22 +1,25 @@
-IM timetracking
-===============
+#  IM timetracking
+
 [![Build Status](https://travis-ci.org/lavong/IM-timetracking.svg)](https://travis-ci.org/lavong/IM-timetracking)
 
-IM timetracking ("I'm timetracking") is a simplistic time tracking app.
+IM timetracking is a simple time tracking tool for Android.
+
+![Tracking](assets/screenshot-tracking.png "current tracking") ![Trackings](assets/screenshot-trackings.png "list of trackings")
+
+[![Get it on Google Play](assets/play-badge.png)](https://play.google.com/store/apps/details?id=com.ingloriousmind.android.imtimetracking)
+
 
 **See http://www.ingloriousmind.com/android/im-timetracking for more information.**
 
 
 
-Developed By
-============
+#  Developed By
 
 * Lavong Soysavanh - <lavong.soysavanh@gmail.com>
 
 
 
-License
-=======
+#  License
 
     Copyright 2014 Lavong Soysavanh
 
