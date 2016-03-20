@@ -9,7 +9,7 @@ IM timetracking is a simple time tracking tool for Android.
 [![Get it on Google Play](assets/play-badge.png)](https://play.google.com/store/apps/details?id=com.ingloriousmind.android.imtimetracking)
 
 
-**See http://www.ingloriousmind.com/android/im-timetracking for more information.**
+See http://www.ingloriousmind.com/android/im-timetracking for more information.
 
 
 

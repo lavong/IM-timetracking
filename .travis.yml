@@ -1,5 +1,9 @@
 language: android
 
+jdk:
+ - oraclejdk7
+ - oraclejdk8
+
 android:
   components:
     - tools
@@ -12,3 +16,7 @@ android:
 script:
   - ./gradlew assembleDebug
   - ls -l app/build/outputs/apk/
+
+cache:
+  directories:
+    - $HOME/.gradle
