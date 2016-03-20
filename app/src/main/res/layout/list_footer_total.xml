@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="-1dp"
-        android:background="@color/im_green"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="4dp"
+        android:background="@color/im_green" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/darker_gray"
-        android:text="@string/total" />
+        android:text="@string/total"
+        android:textColor="@android:color/darker_gray" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/activity_home_total"
-        android:text="@string/initial_time"
-        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/im_green"
         android:textSize="28sp"
-        android:textColor="@color/im_green" />
+        android:textStyle="bold" />
 
 </LinearLayout>

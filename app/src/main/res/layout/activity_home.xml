@@ -8,7 +8,9 @@
         android:id="@+id/activity_home_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="?android:attr/listPreferredItemHeight" />
+        android:layout_marginBottom="?android:attr/listPreferredItemHeight"
+        android:scrollbarDefaultDelayBeforeFade="800"
+        android:scrollbars="vertical" />
 
     <include
         layout="@layout/list_footer_total"
@@ -29,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:text="@string/initial_time"
             android:textColor="@color/im_green"
             android:textSize="42sp"
             android:textStyle="bold" />

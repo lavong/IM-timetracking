@@ -94,8 +94,9 @@ public class HomeActivity extends Activity {
     private class TimeTrackingListener implements TimeTrackerTask.TimeTrackingAware {
 
         @Override
-        public void onTick(final String elapsedTime, long duration) {
-            Timber.v("tick: %s", elapsedTime);
+        public void onTick(final long duration) {
+            final String elapsedTime = TimeUtil.getTimeString(duration);
+            Timber.v("tick: %s (%d ms)", elapsedTime, duration);
             overlayTime.post(new Runnable() {
                 @Override
                 public void run() {
@@ -117,7 +118,7 @@ public class HomeActivity extends Activity {
 
         @Override
         public void onResume(int pos, Tracking t) {
-            Timber.d("resume: %s", t.toString());
+            Timber.d("resume: %s", t);
             startTracking(t);
             adapter.notifyItemChanged(pos);
         }

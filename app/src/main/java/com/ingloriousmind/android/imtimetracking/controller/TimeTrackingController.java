@@ -73,7 +73,7 @@ public class TimeTrackingController {
         stopTimer();
         timer = new Timer(true);
         timer.schedule(new TimeTrackerTask(listener, tracking.getLastTrackingStarted(), tracking.getDuration()), 0, TIMER_PERIOD);
-        Timber.v("started: %s", tracking.toString());
+        Timber.v("started: %s", tracking);
         return tracking;
     }
 
@@ -129,7 +129,8 @@ public class TimeTrackingController {
      */
     public static List<Tracking> fetchTrackings() {
         List<Tracking> trackings = DbHelper.getInstance().fetchTrackings();
-        Timber.d("trackings: %s", trackings);
+        Timber.d("%d trackings loaded:", trackings.size());
+        Timber.v("%s", trackings);
         return trackings;
     }
 
@@ -231,13 +232,13 @@ public class TimeTrackingController {
         // write entries - TODO care about pagination at some point
         c.save();
         c.translate(padding, padding);
-        StaticLayout sl = new StaticLayout(sb.toString(), p, a4Width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, false);
+        StaticLayout sl = new StaticLayout(sb.toString(), p, a4Width / 5 * 4, Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, false);
         sl.draw(c);
 
         // write total
         c.translate(0, sl.getHeight());
         sb.setLength(0);
-        sb.append(ctx.getResources().getString(R.string.total)).append("  ");
+        sb.append(ctx.getResources().getString(R.string.total));
         sb.append(TimeUtil.getTimeString(totalDuration));
         sl = new StaticLayout(sb.toString(), gp, a4Width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 1.0f, false);
         sl.draw(c);
@@ -258,6 +259,9 @@ public class TimeTrackingController {
 
         try {
             // write to file
+            if (pdfFile.exists()) {
+                pdfFile.delete();
+            }
             Timber.v("writing pdf file %s", pdfFile.getAbsolutePath());
             doc.writeTo(new FileOutputStream(pdfFile));
         } catch (IOException e) {

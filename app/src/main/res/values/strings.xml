@@ -31,9 +31,8 @@
     <string name="dialog_share_pdf_error_msg">Something went wrong</string>
     <string name="dialog_share_pdf_error_btn_retry">Retry</string>
     <string name="dialog_share_pdf_error_btn_cancel">Cancel</string>
-    <string name="home_activity_progress_indicator_msg">Loading...</string>
-    <string name="total">total:</string>
-    <string name="initial_time">00:00:00</string>
+    <string name="home_activity_progress_indicator_msg">Loading…</string>
+    <string name="total">Total:\u0020</string>
     <string name="activity_archive_pdf_empty">No archived PDF files</string>
 
 </resources>

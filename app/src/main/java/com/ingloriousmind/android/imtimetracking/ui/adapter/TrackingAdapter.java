@@ -2,7 +2,6 @@ package com.ingloriousmind.android.imtimetracking.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import android.widget.TextView;
 
 import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
+import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +39,6 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
      * adapter model
      */
     private List<Tracking> trackings = new ArrayList<>();
-
-    /**
-     * temp buffer
-     */
-    private StringBuilder sb = new StringBuilder();
 
     /**
      * view holder class
@@ -140,7 +135,7 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
         final Tracking t = trackings.get(position);
 
         // clock
-        holder.clock.setText(DateUtils.formatElapsedTime(sb, t.getDuration() / 1000));
+        holder.clock.setText(TimeUtil.getTimeString(t.getDuration()));
 
         // title
         holder.title.setText(t.getTitle());

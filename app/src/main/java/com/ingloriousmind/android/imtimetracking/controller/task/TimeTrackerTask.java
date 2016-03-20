@@ -1,7 +1,5 @@
 package com.ingloriousmind.android.imtimetracking.controller.task;
 
-import android.text.format.DateUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,15 +19,13 @@ public class TimeTrackerTask extends TimerTask {
         /**
          * callback triggered by timer task
          *
-         * @param elapsedTime elapsed time as formatted string
-         * @param duration    duration
+         * @param duration duration
          */
-        void onTick(String elapsedTime, long duration);
+        void onTick(long duration);
     }
 
     private long start;
     private long offset;
-    private StringBuilder sb = new StringBuilder();
     private List<TimeTrackingAware> updatees = Collections.synchronizedList(new ArrayList<TimeTrackingAware>());
 
     /**
@@ -50,8 +46,7 @@ public class TimeTrackerTask extends TimerTask {
      */
     @Override
     public void run() {
-        long duration = System.currentTimeMillis() - start + offset;
-        notifyUpdate(DateUtils.formatElapsedTime(sb, duration / 1000), duration);
+        notifyUpdate(System.currentTimeMillis() - start + offset);
     }
 
     /**
@@ -83,12 +78,12 @@ public class TimeTrackerTask extends TimerTask {
     /**
      * listener callback
      *
-     * @param elapsedTime elapsed time
+     * @param duration elapsed duration
      */
-    private void notifyUpdate(String elapsedTime, long duration) {
+    private void notifyUpdate(long duration) {
         synchronized (updatees) {
             for (TimeTrackingAware updatee : updatees) {
-                updatee.onTick(elapsedTime, duration);
+                updatee.onTick(duration);
             }
         }
     }
