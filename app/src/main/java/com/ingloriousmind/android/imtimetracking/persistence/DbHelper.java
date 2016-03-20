@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
-import com.ingloriousmind.android.imtimetracking.util.L;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -15,17 +14,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * db helper
  *
  * @author lavong.soysavanh
  */
 public class DbHelper extends OrmLiteSqliteOpenHelper {
-
-    /**
-     * log tag
-     */
-    public static final String TAG = DbHelper.class.getSimpleName();
 
     /**
      * database file name
@@ -58,7 +54,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
      */
     public static void initialize(Context ctx) {
         if (instance == null) {
-            L.d(TAG, "initializing database helper instance");
+            Timber.d("initializing database helper instance");
             instance = new DbHelper(ctx);
         }
     }
@@ -78,11 +74,11 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
-        L.v(TAG, "onCreate");
+        Timber.v("onCreate");
         try {
             createTables(database, connectionSource);
         } catch (Exception e) {
-            L.e(TAG, "unable to create database", e);
+            Timber.e(e, "unable to create database");
         }
     }
 
@@ -91,13 +87,13 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        L.v(TAG, "onUpgrade: " + oldVersion + " -> " + newVersion);
+        Timber.v("onUpgrade: %s -> %s", oldVersion, newVersion);
         try {
             // for now, drop and recreate tables
             dropTables(database, connectionSource);
             createTables(database, connectionSource);
         } catch (Exception e) {
-            L.e(TAG, "failed upgrading database", e);
+            Timber.e(e, "failed upgrading database");
         }
     }
 
@@ -112,7 +108,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.dropTable(connectionSource, Tracking.class, true);
         } catch (SQLException e) {
-            L.e(TAG, "unable to drop tables", e);
+            Timber.e(e, "unable to drop tables");
             throw new Exception(e);
         }
     }
@@ -129,7 +125,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTable(connectionSource, Tracking.class);
         } catch (SQLException e) {
-            L.e(TAG, "unable to create tables", e);
+            Timber.e(e, "unable to create tables");
             throw new Exception(e);
         }
     }
@@ -147,7 +143,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
             qb.orderBy("lastTrackingStarted", false);
             trackings = qb.query();
         } catch (SQLException e) {
-            L.e(TAG, "failed fetching trackings", e);
+            Timber.e(e, "failed fetching trackings");
         }
         return trackings;
     }
@@ -165,7 +161,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
             if (trackings != null && !trackings.isEmpty())
                 return trackings.get(0);
         } catch (SQLException e) {
-            L.e(TAG, "failed fetching trackings", e);
+            Timber.e(e, "failed fetching trackings");
         }
         return null;
     }
@@ -181,7 +177,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
             Dao.CreateOrUpdateStatus result = getDao(Tracking.class).createOrUpdate(newTracking);
             return result.isCreated() || result.isUpdated();
         } catch (SQLException e) {
-            L.e(TAG, "failed storing tracking", e);
+            Timber.e(e, "failed storing tracking");
         }
         return false;
     }
@@ -197,7 +193,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
             Dao<Tracking, Long> dao = getDao(Tracking.class);
             return dao.deleteById(tracking.getCreated()) > 0;
         } catch (SQLException e) {
-            L.e(TAG, "failed removing tracking: " + tracking, e);
+            Timber.e(e, "failed removing tracking: %s", tracking);
         }
         return false;
     }

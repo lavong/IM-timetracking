@@ -29,21 +29,23 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:textColor="@color/im_green"
             android:text="@string/initial_time"
+            android:textColor="@color/im_green"
             android:textSize="42sp"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/activity_home_overlay_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/activity_home_overlay_time"
             android:gravity="center"
+            android:hint="@string/activity_home_overlay_unnamed_tracking_title"
+            android:imeOptions="actionDone"
+            android:padding="18dp"
+            android:singleLine="true"
             android:textColor="@android:color/white"
-            android:text="@string/activity_home_overlay_unnamed_tracking_title"
-            android:textSize="18sp"
-            android:padding="18dp" />
+            android:textSize="18sp" />
 
     </RelativeLayout>
 

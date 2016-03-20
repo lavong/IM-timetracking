@@ -15,17 +15,15 @@ import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * tracking recycler adapter
  *
  * @author lavong.soysavanh
  */
 public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHolder> {
-
-    /**
-     * log tag
-     */
-    private static final String TAG = TrackingAdapter.class.getSimpleName();
 
     /**
      * layout inflater
@@ -51,17 +49,16 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
      * view holder class
      */
     public final static class ViewHolder extends RecyclerView.ViewHolder {
+        @Bind(R.id.list_item_tracking_clock)
         TextView clock;
+        @Bind(R.id.list_item_tracking_title)
         TextView title;
-        ImageButton delete;
+        @Bind(R.id.list_item_tracking_btn_resume_pause)
         ImageButton resumeOrPause;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            clock = (TextView) itemView.findViewById(R.id.list_item_tracking_clock);
-            title = (TextView) itemView.findViewById(R.id.list_item_tracking_title);
-            delete = (ImageButton) itemView.findViewById(R.id.list_item_tracking_btn_delete);
-            resumeOrPause = (ImageButton) itemView.findViewById(R.id.list_item_tracking_btn_resume_pause);
+            ButterKnife.bind(this, itemView);
         }
     }
 
@@ -81,9 +78,6 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
             if (listener != null) {
                 int pos = indexOf(t);
                 switch (v.getId()) {
-                    case R.id.list_item_tracking_btn_delete:
-                        listener.onDelete(pos, t);
-                        break;
                     case R.id.list_item_tracking_btn_resume_pause:
                         listener.onResume(pos, t);
                         break;
@@ -100,8 +94,6 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
      */
     public interface TrackingItemActionListener {
         void onEdit(int pos, Tracking t);
-
-        void onDelete(int pos, Tracking t);
 
         void onResume(int pos, Tracking t);
     }
@@ -155,7 +147,6 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
 
         // buttons
         TrackingItemClickListener clickListener = new TrackingItemClickListener(t);
-        holder.delete.setOnClickListener(clickListener);
         holder.resumeOrPause.setOnClickListener(clickListener);
         holder.resumeOrPause.setImageResource(t.isTracking() ? R.drawable.action_btn_pause : R.drawable.action_btn_play);
         holder.itemView.setOnClickListener(clickListener);
@@ -202,6 +193,5 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
     public int indexOf(Tracking t) {
         return trackings.indexOf(t);
     }
-
 
 }

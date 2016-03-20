@@ -2,6 +2,7 @@ package com.ingloriousmind.android.imtimetracking.ui.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -12,7 +13,10 @@ import android.widget.TimePicker;
 import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.controller.TimeTrackingController;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
-import com.ingloriousmind.android.imtimetracking.util.L;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * edit tracking dialog
@@ -21,18 +25,18 @@ import com.ingloriousmind.android.imtimetracking.util.L;
  */
 public class EditTrackingDialog extends Dialog implements View.OnClickListener {
 
-    /**
-     * log tag
-     */
-    private static final String TAG = EditTrackingDialog.class.getSimpleName();
+    @Bind(R.id.dialog_tracking_edit_title)
+    EditText title;
+    @Bind(R.id.dialog_tracking_edit_time_picker)
+    TimePicker timePicker;
+    @Bind(R.id.dialog_tracking_edit_btn_save)
+    Button save;
+    @Bind(R.id.dialog_tracking_edit_btn_delete)
+    Button delete;
+    @Bind(R.id.dialog_tracking_edit_btn_cancel)
+    Button cancel;
 
-    // views
     private Tracking trackingToEdit;
-    private EditText title;
-    private EditText description;
-    private TimePicker timePicker;
-    private Button save;
-    private Button cancel;
 
     /**
      * ctor
@@ -54,18 +58,14 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_tracking_edit);
+        ButterKnife.bind(this);
 
-        title = (EditText) findViewById(R.id.dialog_tracking_edit_title);
-        description = (EditText) findViewById(R.id.dialog_tracking_edit_description);
-        timePicker = (TimePicker) findViewById(R.id.dialog_tracking_edit_time_picker);
         timePicker.setIs24HourView(true);
-        save = (Button) findViewById(R.id.dialog_tracking_edit_btn_save);
-        cancel = (Button) findViewById(R.id.dialog_tracking_edit_btn_cancel);
         save.setOnClickListener(this);
+        delete.setOnClickListener(this);
         cancel.setOnClickListener(this);
 
         title.setText(trackingToEdit.getTitle());
-        description.setText(trackingToEdit.getDescription());
         int minutes = (int) trackingToEdit.getDuration() / 60 / 1000;
         timePicker.setCurrentHour(minutes / 60);
         timePicker.setCurrentMinute(minutes % 60);
@@ -79,12 +79,22 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.dialog_tracking_edit_btn_save:
                 trackingToEdit.setTitle(title.getText().toString());
-                trackingToEdit.setDescription(description.getText().toString());
                 Integer h = timePicker.getCurrentHour();
                 Integer m = timePicker.getCurrentMinute();
                 trackingToEdit.setDuration((h * 60 + m) * 60 * 1000);
                 TimeTrackingController.storeTracking(trackingToEdit);
                 dismiss();
+                break;
+            case R.id.dialog_tracking_edit_btn_delete:
+                String msg = getContext().getString(R.string.dialog_msg_delete, trackingToEdit.getTitle());
+                DialogFactory.newTwoButtonDialog(getContext(), R.string.dialog_title_delete, msg, R.string.dialog_btn_delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Timber.d("delete: %s", trackingToEdit.toString());
+                        TimeTrackingController.removeTracking(trackingToEdit);
+                        dismiss();
+                    }
+                }, R.string.dialog_btn_cancel, null).show();
                 break;
             case R.id.dialog_tracking_edit_btn_cancel:
                 dismiss();
@@ -98,10 +108,9 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
     @Override
     protected void onStart() {
         super.onStart();
-        L.i(TAG, "onStart");
 
         if (trackingToEdit == null) {
-            L.w(TAG, "tracking expected");
+            Timber.w("tracking expected");
             dismiss();
         }
 

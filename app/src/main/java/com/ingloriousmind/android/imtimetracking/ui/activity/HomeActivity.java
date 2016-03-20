@@ -14,12 +14,15 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewOutlineProvider;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,12 +34,16 @@ import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.ui.adapter.TrackingAdapter;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.EditTrackingDialog;
-import com.ingloriousmind.android.imtimetracking.util.L;
+import com.ingloriousmind.android.imtimetracking.util.ImeUtil;
 import com.ingloriousmind.android.imtimetracking.util.RedirectFacade;
 import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
 import java.io.File;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * home activity
@@ -45,25 +52,23 @@ import java.util.List;
  */
 public class HomeActivity extends Activity {
 
-    /**
-     * log tag
-     */
-    private static final String TAG = HomeActivity.class.getSimpleName();
-
-    /**
-     * recycler adapter to display
-     */
-    private TrackingAdapter adapter;
-
-    // views
-    private ImageButton actionButtonAdd;
-    private ImageButton actionButtonPause;
-    private RelativeLayout overlay;
-    private TextView overlayTitle;
-    private TextView overlayTime;
+    @Bind(R.id.activity_home_action_add)
+    ImageButton actionButtonAdd;
+    @Bind(R.id.activity_home_action_pause)
+    ImageButton actionButtonPause;
+    @Bind(R.id.activity_home_overlay)
+    RelativeLayout overlay;
+    @Bind(R.id.activity_home_overlay_title)
+    EditText overlayTitle;
+    @Bind(R.id.activity_home_overlay_time)
+    TextView overlayTime;
+    @Bind(R.id.activity_home_total)
+    TextView footerTotal;
+    @Bind(R.id.activity_home_recycler)
+    RecyclerView recycler;
     private ProgressDialog progressDialog;
-    private TextView footerTotal;
-    private RecyclerView recycler;
+
+    private TrackingAdapter adapter;
 
     /**
      * action button click listener
@@ -90,8 +95,8 @@ public class HomeActivity extends Activity {
 
         @Override
         public void onTick(final String elapsedTime, long duration) {
-            L.d(TAG, "tick: " + elapsedTime);
-            runOnUiThread(new Runnable() {
+            Timber.v("tick: %s", elapsedTime);
+            overlayTime.post(new Runnable() {
                 @Override
                 public void run() {
                     overlayTime.setText(elapsedTime);
@@ -111,24 +116,8 @@ public class HomeActivity extends Activity {
         }
 
         @Override
-        public void onDelete(final int pos, final Tracking t) {
-            String title = getString(R.string.dialog_title_delete);
-            String msg = getString(R.string.dialog_msg_delete, t.getTitle());
-            String delete = getString(R.string.dialog_btn_delete);
-            String cancel = getString(R.string.dialog_btn_cancel);
-            DialogFactory.newTwoButtonDialog(HomeActivity.this, title, msg, delete, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    L.d(TAG, "delete: " + t.toString());
-                    TimeTrackingController.removeTracking(t);
-                    adapter.removeTracking(pos);
-                }
-            }, cancel, null).show();
-        }
-
-        @Override
         public void onResume(int pos, Tracking t) {
-            L.d(TAG, "resume: " + t.toString());
+            Timber.d("resume: %s", t.toString());
             startTracking(t);
             adapter.notifyItemChanged(pos);
         }
@@ -246,13 +235,13 @@ public class HomeActivity extends Activity {
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pdfFile));
                 startActivity(Intent.createChooser(intent, getString(R.string.home_activity_share_pdf_intent_chooser_title)));
             } else {
-                DialogFactory.newTwoButtonDialog(HomeActivity.this, getString(R.string.dialog_share_pdf_error_title), getString(R.string.dialog_share_pdf_error_msg), getString(R.string.dialog_share_pdf_error_btn_retry), new DialogInterface.OnClickListener() {
+                DialogFactory.newTwoButtonDialog(HomeActivity.this, R.string.dialog_share_pdf_error_title, getString(R.string.dialog_share_pdf_error_msg), R.string.dialog_share_pdf_error_btn_retry, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         new ExportAndSharePdfTask().execute();
                     }
-                }, getString(R.string.dialog_share_pdf_error_btn_cancel), new DialogInterface.OnClickListener() {
+                }, R.string.dialog_share_pdf_error_btn_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -270,8 +259,7 @@ public class HomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        recycler = (RecyclerView) findViewById(R.id.activity_home_recycler);
+        ButterKnife.bind(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -282,16 +270,11 @@ public class HomeActivity extends Activity {
         adapter = new TrackingAdapter(this, null, new TrackingListItemListener());
         recycler.setAdapter(adapter);
 
-        footerTotal = (TextView) findViewById(R.id.activity_home_total);
-
         // progress dialog
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.home_activity_progress_indicator_msg));
 
         // overlay
-        overlay = (RelativeLayout) findViewById(R.id.activity_home_overlay);
-        overlayTitle = (TextView) findViewById(R.id.activity_home_overlay_title);
-        overlayTime = (TextView) findViewById(R.id.activity_home_overlay_time);
         overlay.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -299,10 +282,19 @@ public class HomeActivity extends Activity {
                 return true;
             }
         });
+        overlayTitle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    updateTrackingTitle(v.getText());
+                    v.clearFocus();
+                    ImeUtil.hideIme(v);
+                }
+                return false;
+            }
+        });
 
         // action buttons
-        actionButtonAdd = (ImageButton) findViewById(R.id.activity_home_action_add);
-        actionButtonPause = (ImageButton) findViewById(R.id.activity_home_action_pause);
         ActionButtonClickListener actionBtnListener = new ActionButtonClickListener();
         actionButtonAdd.setOnClickListener(actionBtnListener);
         actionButtonPause.setOnClickListener(actionBtnListener);
@@ -323,6 +315,16 @@ public class HomeActivity extends Activity {
         actionButtonPause.setElevation(10);
     }
 
+    private void updateTrackingTitle(CharSequence title) {
+        if (!TextUtils.isEmpty(title)) {
+            Timber.d("updateTrackingTitle: %s", title);
+            Tracking tracking = TimeTrackingController.currentTracking();
+            if (tracking != null) {
+                tracking.setTitle(title.toString());
+                TimeTrackingController.storeTracking(tracking);
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -404,16 +406,12 @@ public class HomeActivity extends Activity {
                 RedirectFacade.goPdfArchive(this);
                 break;
             case R.id.action_clear:
-                String title = getString(R.string.dialog_title_delete_all);
-                String msg = getString(R.string.dialog_msg_delete_all);
-                String delete = getString(R.string.dialog_btn_delete);
-                String cancel = getString(R.string.dialog_btn_cancel);
-                DialogFactory.newTwoButtonDialog(HomeActivity.this, title, msg, delete, new DialogInterface.OnClickListener() {
+                DialogFactory.newTwoButtonDialog(HomeActivity.this, R.string.dialog_title_delete_all, getString(R.string.dialog_msg_delete_all), R.string.dialog_btn_delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         new DeleteTrackingsTask().execute();
                     }
-                }, cancel, null).show();
+                }, R.string.dialog_btn_cancel, null).show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -465,14 +463,19 @@ public class HomeActivity extends Activity {
      * reveals {@link #overlay}
      */
     public void revealOverlay() {
-        int cx = (overlay.getLeft() + overlay.getRight()) / 2;
-        int cy = (overlay.getTop() + overlay.getBottom()) / 2;
-        int clippingCircleRadius = Math.max(overlay.getWidth(), overlay.getHeight());
-        Animator anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, 0, clippingCircleRadius);
-        overlay.setVisibility(View.VISIBLE);
-        anim.start();
-        actionButtonAdd.setVisibility(View.GONE);
-        actionButtonPause.setVisibility(View.VISIBLE);
+        overlay.post(new Runnable() {
+            @Override
+            public void run() {
+                int cx = (overlay.getLeft() + overlay.getRight()) / 2;
+                int cy = (overlay.getTop() + overlay.getBottom()) / 2;
+                int clippingCircleRadius = Math.max(overlay.getWidth(), overlay.getHeight());
+                Animator anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, 0, clippingCircleRadius);
+                overlay.setVisibility(View.VISIBLE);
+                anim.start();
+                actionButtonAdd.setVisibility(View.GONE);
+                actionButtonPause.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**
@@ -490,7 +493,7 @@ public class HomeActivity extends Activity {
                 overlay.setVisibility(View.INVISIBLE);
                 actionButtonAdd.setVisibility(View.VISIBLE);
                 actionButtonPause.setVisibility(View.GONE);
-                //recycler.smoothScrollToPosition(0);
+                ImeUtil.hideIme(overlayTitle);
             }
         });
         anim.start();

@@ -18,10 +18,13 @@ import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.ui.adapter.PdfArchiveAdapter;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.util.FileUtil;
-import com.ingloriousmind.android.imtimetracking.util.L;
 
 import java.io.File;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import timber.log.Timber;
 
 /**
  * pdf archive activity
@@ -30,15 +33,12 @@ import java.util.List;
  */
 public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.FileItemClickListener {
 
-    /**
-     * log tag
-     */
-    private static final String TAG = PdfArchiveActivity.class.getSimpleName();
+    @Bind(R.id.activity_archive_pdf_recycler)
+    RecyclerView recycler;
+    @Bind(R.id.activity_archive_pdf_empty)
+    TextView empty;
 
-    // views
-    private RecyclerView recycler;
     private PdfArchiveAdapter recyclerAdapter;
-    private TextView empty;
 
     /**
      * task feeding recycler adapter
@@ -70,7 +70,7 @@ public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.Fi
             List<File> pdfFiles = FileUtil.getArchivedPdfFiles();
             for (File f : pdfFiles) {
                 if (f.delete()) {
-                    L.v(TAG, "deleted " + f.getAbsolutePath());
+                    Timber.v("deleted: %s", f.getAbsolutePath());
                 }
             }
             return null;
@@ -89,9 +89,7 @@ public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.Fi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archive_pdf);
-
-        empty = (TextView) findViewById(R.id.activity_archive_pdf_empty);
-        recycler = (RecyclerView) findViewById(R.id.activity_archive_pdf_recycler);
+        ButterKnife.bind(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -106,7 +104,6 @@ public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.Fi
             @Override
             public void onChanged() {
                 super.onChanged();
-                L.d(TAG, "onChanged");
                 updateEmptyViewVisibility();
             }
         });
@@ -137,16 +134,12 @@ public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.Fi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_clear:
-                String title = getString(R.string.dialog_title_delete_all_pdfs);
-                String msg = getString(R.string.dialog_msg_delete_all_pdfs);
-                String delete = getString(R.string.dialog_btn_delete);
-                String cancel = getString(R.string.dialog_btn_cancel);
-                DialogFactory.newTwoButtonDialog(PdfArchiveActivity.this, title, msg, delete, new DialogInterface.OnClickListener() {
+                DialogFactory.newTwoButtonDialog(PdfArchiveActivity.this, R.string.dialog_title_delete_all_pdfs, getString(R.string.dialog_msg_delete_all_pdfs), R.string.dialog_btn_delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         new DeleteArchivedPdfFilesTask().execute();
                     }
-                }, cancel, null).show();
+                }, R.string.dialog_btn_cancel, null).show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -168,8 +161,8 @@ public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.Fi
      */
     @Override
     public void onClick(File file) {
-        L.d(TAG, "onclick: " + file.getAbsolutePath());
         if (file != null && file.exists()) {
+            Timber.d("onClick: %s", file.getAbsolutePath());
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);

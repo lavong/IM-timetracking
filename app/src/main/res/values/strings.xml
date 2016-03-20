@@ -15,7 +15,6 @@
     <string name="activity_home_overlay_unnamed_tracking_title">unnamed task</string>
     <string name="dialog_tracking_edit_heading">Edit Tracking</string>
     <string name="dialog_tracking_edit_title_hint">Tracking title</string>
-    <string name="dialog_tracking_edit_description_hint">Tracking description</string>
     <string name="dialog_tracking_edit_btn_save">Save</string>
     <string name="dialog_title_delete">Delete?</string>
     <string name="dialog_msg_delete">Delete \'%1$s\' tracking?</string>

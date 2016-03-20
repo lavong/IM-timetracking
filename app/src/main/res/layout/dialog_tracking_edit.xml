@@ -2,16 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="12dp"
         android:text="@string/dialog_tracking_edit_heading"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:padding="12dp" />
+        android:textStyle="bold" />
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -19,24 +19,17 @@
         android:layout_weight="1">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="8dp">
 
             <EditText
                 android:id="@+id/dialog_tracking_edit_title"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/dialog_tracking_edit_title_hint"
-                android:layout_margin="8dp" />
-
-            <EditText
-                android:id="@+id/dialog_tracking_edit_description"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/dialog_tracking_edit_description_hint"
-                android:layout_margin="8dp" />
+                android:layout_margin="8dp"
+                android:hint="@string/dialog_tracking_edit_title_hint" />
 
             <TimePicker
                 android:id="@+id/dialog_tracking_edit_time_picker"
@@ -59,6 +52,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/dialog_btn_cancel" />
+
+        <Button
+            android:id="@+id/dialog_tracking_edit_btn_delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/dialog_btn_delete" />
 
         <Button
             android:id="@+id/dialog_tracking_edit_btn_save"

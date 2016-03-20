@@ -5,15 +5,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ingloriousmind.android.imtimetracking.R;
-import com.ingloriousmind.android.imtimetracking.util.L;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * pdf archive recycler adapter
@@ -21,11 +22,6 @@ import java.util.List;
  * @author lavong.soysavanh
  */
 public class PdfArchiveAdapter extends RecyclerView.Adapter<PdfArchiveAdapter.ViewHolder> {
-
-    /**
-     * log tag
-     */
-    private static final String TAG = PdfArchiveAdapter.class.getSimpleName();
 
     /**
      * layout inflater
@@ -46,13 +42,12 @@ public class PdfArchiveAdapter extends RecyclerView.Adapter<PdfArchiveAdapter.Vi
      * view holder class
      */
     public final static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView icon;
+        @Bind(R.id.list_item_archive_pdf_filename)
         TextView filename;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            icon = (ImageView) itemView.findViewById(R.id.list_item_archive_pdf_icon);
-            filename = (TextView) itemView.findViewById(R.id.list_item_archive_pdf_filename);
+            ButterKnife.bind(this, itemView);
         }
     }
 
@@ -106,7 +101,6 @@ public class PdfArchiveAdapter extends RecyclerView.Adapter<PdfArchiveAdapter.Vi
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    L.v(TAG, "onclick: " + position);
                     clickListener.onClick(f);
                 }
             });

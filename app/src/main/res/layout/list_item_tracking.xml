@@ -13,50 +13,38 @@
             android:id="@+id/list_item_tracking_clock"
             android:layout_width="wrap_content"
             android:layout_height="?android:attr/listPreferredItemHeight"
-            android:minWidth="?android:attr/listPreferredItemHeight"
-            android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             android:layout_marginEnd="10dp"
-            android:textStyle="bold"
-            android:textSize="28sp"
             android:gravity="center_vertical"
+            android:minWidth="?android:attr/listPreferredItemHeight"
+            android:text="@string/list_item_tracking_initial_time"
             android:textColor="@color/im_green"
-            android:text="@string/list_item_tracking_initial_time" />
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/list_item_tracking_btn_delete"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/action_btn_delete"
-            android:background="@null"
-            android:alpha="0.8" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/list_item_tracking_btn_resume_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/list_item_tracking_btn_delete"
-            android:layout_toStartOf="@id/list_item_tracking_btn_delete"
-            android:src="@drawable/action_btn_play"
+            android:alpha="0.8"
             android:background="@null"
-            android:alpha="0.8" />
+            android:src="@drawable/action_btn_play" />
 
         <TextView
             android:id="@+id/list_item_tracking_title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_tracking_clock"
+            android:layout_centerVertical="true"
             android:layout_toEndOf="@id/list_item_tracking_clock"
             android:layout_toLeftOf="@id/list_item_tracking_btn_resume_pause"
+            android:layout_toRightOf="@id/list_item_tracking_clock"
             android:layout_toStartOf="@id/list_item_tracking_btn_resume_pause"
-            android:layout_centerVertical="true"
-            android:textStyle="bold"
+            android:text="@string/list_item_tracking_unnamed_title"
             android:textSize="18sp"
-            android:text="@string/list_item_tracking_unnamed_title" />
+            android:textStyle="bold" />
 
     </RelativeLayout>
 </FrameLayout>

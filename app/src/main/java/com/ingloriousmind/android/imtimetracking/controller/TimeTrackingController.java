@@ -12,15 +12,12 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.ingloriousmind.android.imtimetracking.Config;
 import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
 import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
 import com.ingloriousmind.android.imtimetracking.util.FileUtil;
-import com.ingloriousmind.android.imtimetracking.util.L;
 import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 
 import java.io.File;
@@ -29,7 +26,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
+
+import timber.log.Timber;
 
 /**
  * time tracking controller
@@ -37,11 +37,6 @@ import java.util.Timer;
  * @author lavong.soysavanh
  */
 public class TimeTrackingController {
-
-    /**
-     * log tag
-     */
-    public static final String TAG = TimeTrackingController.class.getSimpleName();
 
     /**
      * default timer period
@@ -55,27 +50,15 @@ public class TimeTrackingController {
      * timer
      */
     private static Timer timer;
-    /**
-     * listener
-     */
-    private static TimeTrackerTask.TimeTrackingAware listener;
-
-    /**
-     * @see #start(com.ingloriousmind.android.imtimetracking.model.Tracking, com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask.TimeTrackingAware)
-     */
-    public static Tracking start(TimeTrackerTask.TimeTrackingAware listener) {
-        return start(new Tracking(), listener);
-    }
 
     /**
      * starts time tracking and returns the timer task being executed periodically ({@link #TIMER_PERIOD}).
      *
-     * @param t                a {@link com.ingloriousmind.android.imtimetracking.model.Tracking} to start or continue
-     * @param trackingListener a time tracking tick listener to register
+     * @param t        a {@link com.ingloriousmind.android.imtimetracking.model.Tracking} to start or continue
+     * @param listener a time tracking tick listener to register
      * @return {@link com.ingloriousmind.android.imtimetracking.model.Tracking}
      */
-    public static Tracking start(Tracking t, TimeTrackerTask.TimeTrackingAware trackingListener) {
-        listener = trackingListener;
+    public static Tracking start(Tracking t, TimeTrackerTask.TimeTrackingAware listener) {
         long now = System.currentTimeMillis();
         if (t == null) {
             tracking = new Tracking();
@@ -90,7 +73,7 @@ public class TimeTrackingController {
         stopTimer();
         timer = new Timer(true);
         timer.schedule(new TimeTrackerTask(listener, tracking.getLastTrackingStarted(), tracking.getDuration()), 0, TIMER_PERIOD);
-        L.v(TAG, "started: " + tracking.toString());
+        Timber.v("started: %s", tracking.toString());
         return tracking;
     }
 
@@ -109,7 +92,7 @@ public class TimeTrackingController {
                 tracking.setLastTrackingStarted(now);
             storeTracking(tracking);
             stopTimer();
-            L.v(TAG, "stopped: " + tracking);
+            Timber.v("stopped: %s", tracking);
             return tracking;
         }
         return null;
@@ -135,6 +118,10 @@ public class TimeTrackingController {
         }
     }
 
+    public static Tracking currentTracking() {
+        return tracking;
+    }
+
     /**
      * fetches persisted {@link com.ingloriousmind.android.imtimetracking.model.Tracking} from db
      *
@@ -142,11 +129,7 @@ public class TimeTrackingController {
      */
     public static List<Tracking> fetchTrackings() {
         List<Tracking> trackings = DbHelper.getInstance().fetchTrackings();
-        if (Config.debug) {
-            L.d(TAG, "fetched " + trackings.size() + " trackings:");
-            for (Tracking t : trackings)
-                L.v(TAG, "  " + t.toString());
-        }
+        Timber.d("trackings: %s", trackings);
         return trackings;
     }
 
@@ -157,7 +140,7 @@ public class TimeTrackingController {
      */
     public static Tracking fetchMostRecentTracking() {
         Tracking mostRecentTracking = DbHelper.getInstance().fetchMostRecentTracking();
-        L.d(TAG, "most recent: " + mostRecentTracking);
+        Timber.d("most recent: %s", mostRecentTracking);
         return mostRecentTracking;
     }
 
@@ -173,9 +156,9 @@ public class TimeTrackingController {
         boolean deleted = DbHelper.getInstance().removeTracking(t);
 
         if (deleted)
-            L.d(TAG, "removed " + t.toString());
+            Timber.d("removed %s", t.toString());
         else
-            L.w(TAG, "unable to remove: " + t.toString());
+            Timber.w("unable to remove: %s", t.toString());
     }
 
     /**
@@ -190,9 +173,9 @@ public class TimeTrackingController {
         boolean stored = DbHelper.getInstance().storeTracking(t);
 
         if (stored)
-            L.d(TAG, "stored " + t.toString());
+            Timber.d("stored: %s", t.toString());
         else
-            L.w(TAG, "unable to store: " + t.toString());
+            Timber.w("unable to store: %s", t.toString());
     }
 
     /**
@@ -207,10 +190,10 @@ public class TimeTrackingController {
         List<Tracking> trackings = fetchTrackings();
         if (trackings == null || trackings.isEmpty())
             return null;
-        L.d(TAG, "exporting " + trackings.size() + " trackings to pdf");
+        Timber.d("exporting %d trackings to pdf", trackings.size());
 
         // create file
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String todayString = sdf.format(new Date(System.currentTimeMillis()));
         String pdfFileName = "im-timetracking-" + todayString + ".pdf";
         File pdfFile = new File(FileUtil.appDir, pdfFileName);
@@ -233,7 +216,7 @@ public class TimeTrackingController {
         Canvas c = page.getCanvas();
         int padding = ctx.getResources().getInteger(R.integer.export_pdf_page_padding);
         String unnamed = ctx.getString(R.string.list_item_tracking_unnamed_title);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         long totalDuration = 0;
 
         // prepare entries
@@ -275,10 +258,10 @@ public class TimeTrackingController {
 
         try {
             // write to file
-            L.v(TAG, "writing pdf file " + pdfFile.getAbsolutePath());
+            Timber.v("writing pdf file %s", pdfFile.getAbsolutePath());
             doc.writeTo(new FileOutputStream(pdfFile));
         } catch (IOException e) {
-            Log.e(TAG, "failed writing pdf file", e);
+            Timber.e(e, "failed writing pdf file");
             return null;
         } finally {
             doc.close();
