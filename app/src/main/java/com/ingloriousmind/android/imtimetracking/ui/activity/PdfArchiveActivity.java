@@ -1,11 +1,11 @@
 package com.ingloriousmind.android.imtimetracking.ui.activity;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +31,7 @@ import timber.log.Timber;
  *
  * @author lavong.soysavavnh
  */
-public class PdfArchiveActivity extends Activity implements PdfArchiveAdapter.FileItemClickListener {
+public class PdfArchiveActivity extends AppCompatActivity implements PdfArchiveAdapter.FileItemClickListener {
 
     @Bind(R.id.activity_archive_pdf_recycler)
     RecyclerView recycler;

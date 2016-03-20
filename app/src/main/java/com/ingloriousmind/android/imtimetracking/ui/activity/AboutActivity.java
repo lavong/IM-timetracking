@@ -1,7 +1,7 @@
 package com.ingloriousmind.android.imtimetracking.ui.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.ingloriousmind.android.imtimetracking.BuildConfig;
@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
  *
  * @author lavong.soysavanh
  */
-public class AboutActivity extends Activity {
+public class AboutActivity extends AppCompatActivity {
 
     @Bind(R.id.activity_about_versions)
     TextView versions;

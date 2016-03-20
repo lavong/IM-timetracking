@@ -39,7 +39,7 @@
             android:layout_alignParentEnd="true"
             android:alpha="0.75"
             android:background="@null"
-            android:src="@drawable/action_btn_play" />
+            android:src="@drawable/btn_play" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

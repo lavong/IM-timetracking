@@ -143,7 +143,7 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
         // buttons
         TrackingItemClickListener clickListener = new TrackingItemClickListener(t);
         holder.resumeOrPause.setOnClickListener(clickListener);
-        holder.resumeOrPause.setImageResource(t.isTracking() ? R.drawable.action_btn_pause : R.drawable.action_btn_play);
+        holder.resumeOrPause.setImageResource(t.isTracking() ? R.drawable.btn_pause : R.drawable.btn_play);
         holder.itemView.setOnClickListener(clickListener);
     }
 

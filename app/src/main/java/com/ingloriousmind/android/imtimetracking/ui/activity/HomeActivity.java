@@ -2,14 +2,14 @@ package com.ingloriousmind.android.imtimetracking.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Outline;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,10 +20,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -50,12 +48,12 @@ import timber.log.Timber;
  *
  * @author lavong.soysavanh
  */
-public class HomeActivity extends Activity {
+public class HomeActivity extends AppCompatActivity {
 
     @Bind(R.id.activity_home_action_add)
-    ImageButton actionButtonAdd;
+    FloatingActionButton actionButtonAdd;
     @Bind(R.id.activity_home_action_pause)
-    ImageButton actionButtonPause;
+    FloatingActionButton actionButtonPause;
     @Bind(R.id.activity_home_overlay)
     RelativeLayout overlay;
     @Bind(R.id.activity_home_overlay_title)
@@ -299,21 +297,6 @@ public class HomeActivity extends Activity {
         ActionButtonClickListener actionBtnListener = new ActionButtonClickListener();
         actionButtonAdd.setOnClickListener(actionBtnListener);
         actionButtonPause.setOnClickListener(actionBtnListener);
-
-        // action button elevation
-        ViewOutlineProvider actionButtonOutlineProvider = new ViewOutlineProvider() {
-            @Override
-            public void getOutline(View view, Outline outline) {
-                int size = getResources().getDimensionPixelSize(R.dimen.floating_action_button_outline_size);
-                outline.setOval(0, 0, size, size);
-            }
-        };
-        actionButtonAdd.setOutlineProvider(actionButtonOutlineProvider);
-        actionButtonAdd.setClipToOutline(true);
-        actionButtonAdd.setElevation(10);
-        actionButtonPause.setOutlineProvider(actionButtonOutlineProvider);
-        actionButtonPause.setClipToOutline(true);
-        actionButtonPause.setElevation(10);
     }
 
     private void updateTrackingTitle(CharSequence title) {

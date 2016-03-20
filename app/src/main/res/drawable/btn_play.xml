@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/ic_av_play_circle_fill" android:state_pressed="true" />
+
+    <item android:drawable="@drawable/ic_av_play_circle_outline" android:state_focused="true" />
+
+    <item android:drawable="@drawable/ic_av_play_circle_outline" android:state_enabled="false" />
+
+    <item android:drawable="@drawable/ic_av_play_circle_outline" />
+
+</selector>
