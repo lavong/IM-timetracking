@@ -28,10 +28,12 @@ public class TrackingApplication extends Application {
 
         Log.v(TAG, "  establishing folder structure");
         FileUtil.appDir = getExternalFilesDir(null);
-        if (FileUtil.appDir != null) {
+        if (FileUtil.appDir != null && FileUtil.appDir.canWrite()) {
             FileUtil.appDir.mkdirs();
-            Log.v(TAG, "    " + FileUtil.appDir.getAbsolutePath());
+        } else {
+            FileUtil.appDir = getFilesDir();
         }
+        Log.v(TAG, "    " + FileUtil.appDir.getAbsolutePath());
 
         Log.v(TAG, "  initializing logger");
         if (BuildConfig.DEBUG) {

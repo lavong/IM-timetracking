@@ -1,5 +1,6 @@
 package com.ingloriousmind.android.imtimetracking.ui.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -160,13 +161,34 @@ public class PdfArchiveActivity extends AppCompatActivity implements PdfArchiveA
      * @param file the file being clicked
      */
     @Override
-    public void onClick(File file) {
-        if (file != null && file.exists()) {
+    public void onClick(final File file) {
+        try {
             Timber.d("onClick: %s", file.getAbsolutePath());
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Timber.e(e, "no activity to open pdf file: %s", file.getAbsoluteFile());
+            DialogFactory.newTwoButtonDialog(
+                    this,
+                    R.string.dialog_open_pdf_error_title,
+                    getString(R.string.dialog_open_pdf_error_msg),
+                    R.string.dialog_open_pdf_error_btn_retry,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            PdfArchiveActivity.this.onClick(file);
+                            dialog.dismiss();
+                        }
+                    },
+                    R.string.dialog_open_pdf_error_btn_cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
         }
     }
 
