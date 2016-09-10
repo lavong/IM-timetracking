@@ -173,7 +173,7 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
      * @param t tracking to add
      */
     public void addTracking(Tracking t) {
-        if (t != null) {
+        if (t != null && !trackings.contains(t)) {
             trackings.add(0, t);
             notifyItemInserted(0);
         }

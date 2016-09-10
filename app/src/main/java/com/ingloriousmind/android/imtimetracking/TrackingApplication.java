@@ -1,9 +1,7 @@
 package com.ingloriousmind.android.imtimetracking;
 
 import android.app.Application;
-import android.util.Log;
 
-import com.ingloriousmind.android.imtimetracking.persistence.DbHelper;
 import com.ingloriousmind.android.imtimetracking.util.FileUtil;
 
 import timber.log.Timber;
@@ -15,7 +13,10 @@ import timber.log.Timber;
  */
 public class TrackingApplication extends Application {
 
-    public static final String TAG = TrackingApplication.class.getSimpleName();
+    /**
+     * dagger tracking component
+     */
+    private TrackingComponent component;
 
     /**
      * {@inheritDoc}
@@ -23,27 +24,23 @@ public class TrackingApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
 
-        Log.v(TAG, "initializing...");
+        component = DaggerTrackingComponent.builder().trackingModule(new TrackingModule(this)).build();
 
-        Log.v(TAG, "  establishing folder structure");
         FileUtil.appDir = getExternalFilesDir(null);
         if (FileUtil.appDir != null && FileUtil.appDir.canWrite()) {
             FileUtil.appDir.mkdirs();
         } else {
             FileUtil.appDir = getFilesDir();
         }
-        Log.v(TAG, "    " + FileUtil.appDir.getAbsolutePath());
+        Timber.i("app dir: %s", FileUtil.appDir.getAbsolutePath());
+    }
 
-        Log.v(TAG, "  initializing logger");
-        if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
-        }
-
-        Log.v(TAG, "  initializing persistence manager");
-        DbHelper.initialize(this);
-
-        Log.v(TAG, "... done.");
+    public TrackingComponent getComponent() {
+        return component;
     }
 
 }

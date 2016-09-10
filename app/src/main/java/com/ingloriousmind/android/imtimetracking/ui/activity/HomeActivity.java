@@ -26,9 +26,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ingloriousmind.android.imtimetracking.R;
-import com.ingloriousmind.android.imtimetracking.controller.TimeTrackingController;
-import com.ingloriousmind.android.imtimetracking.controller.task.TimeTrackerTask;
+import com.ingloriousmind.android.imtimetracking.TrackingApplication;
+import com.ingloriousmind.android.imtimetracking.export.Exporter;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
+import com.ingloriousmind.android.imtimetracking.time.Tracker;
 import com.ingloriousmind.android.imtimetracking.ui.adapter.TrackingAdapter;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.DialogFactory;
 import com.ingloriousmind.android.imtimetracking.ui.dialog.EditTrackingDialog;
@@ -39,8 +40,13 @@ import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 import java.io.File;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import timber.log.Timber;
 
 /**
@@ -64,9 +70,17 @@ public class HomeActivity extends AppCompatActivity {
     TextView footerTotal;
     @Bind(R.id.activity_home_recycler)
     RecyclerView recycler;
-    private ProgressDialog progressDialog;
 
+    private ProgressDialog progressDialog;
     private TrackingAdapter adapter;
+
+    @Inject
+    Tracker tracker;
+
+    @Inject
+    Exporter exporter;
+
+    private Subscription trackerSubscription;
 
     /**
      * action button click listener
@@ -83,24 +97,6 @@ public class HomeActivity extends AppCompatActivity {
                     stopTracking();
                     break;
             }
-        }
-    }
-
-    /**
-     * tracking controller callback listener
-     */
-    private class TimeTrackingListener implements TimeTrackerTask.TimeTrackingAware {
-
-        @Override
-        public void onTick(final long duration) {
-            final String elapsedTime = TimeUtil.getTimeString(duration);
-            Timber.v("tick: %s (%d ms)", elapsedTime, duration);
-            overlayTime.post(new Runnable() {
-                @Override
-                public void run() {
-                    overlayTime.setText(elapsedTime);
-                }
-            });
         }
     }
 
@@ -137,7 +133,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            trackings = TimeTrackingController.fetchTrackings();
+            trackings = tracker.getTrackings();
 
             for (Tracking t : trackings)
                 total += t.getDuration();
@@ -168,8 +164,8 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            for (Tracking t : TimeTrackingController.fetchTrackings())
-                TimeTrackingController.removeTracking(t);
+            for (Tracking t : tracker.getTrackings())
+                tracker.removeTracking(t);
             return null;
         }
 
@@ -187,26 +183,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * async task fetching and checking most recent tracking for resuming
-     */
-    private class ResumeTask extends AsyncTask<Void, Void, Void> {
-
-        Tracking mostRecent;
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            mostRecent = TimeTrackingController.fetchMostRecentTracking();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (mostRecent != null && mostRecent.isTracking())
-                startTracking(mostRecent);
-        }
-    }
-
-    /**
      * async task exporting pdf file and launching share intent
      */
     private class ExportAndSharePdfTask extends AsyncTask<Void, Void, Void> {
@@ -215,7 +191,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            pdfFile = TimeTrackingController.exportPdf(HomeActivity.this);
+            pdfFile = exporter.export();
             return null;
         }
 
@@ -250,7 +226,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -259,6 +234,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        ((TrackingApplication) getApplication()).getComponent().inject(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -302,10 +278,10 @@ public class HomeActivity extends AppCompatActivity {
     private void updateTrackingTitle(CharSequence title) {
         if (!TextUtils.isEmpty(title)) {
             Timber.d("updateTrackingTitle: %s", title);
-            Tracking tracking = TimeTrackingController.currentTracking();
+            Tracking tracking = tracker.getCurrentTracking();
             if (tracking != null) {
                 tracking.setTitle(title.toString());
-                TimeTrackingController.storeTracking(tracking);
+                tracker.persistTracking(tracking);
             }
         }
     }
@@ -317,8 +293,22 @@ public class HomeActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
+        trackerSubscription = tracker.observe()
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Tracking>() {
+                    @Override
+                    public void call(Tracking tracking) {
+                        final String elapsedTime = TimeUtil.getTimeString(tracking.getDuration());
+                        Timber.v("observe tracking: %s (%d ms)", elapsedTime, tracking.getDuration());
+                        overlayTime.setText(elapsedTime);
+                    }
+                });
+
         // check if there is a tracking to resume
-        new ResumeTask().execute();
+        Tracking trackingResumed = tracker.resumeIfNecessary();
+        if (trackingResumed != null) {
+            onTrackingStarted(trackingResumed);
+        }
 
         // load items
         reloadTrackingList(false);
@@ -332,12 +322,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onPause();
 
         // pause tracking
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TimeTrackingController.stop(true);
-            }
-        }).start();
+        tracker.pause();
+
+        trackerSubscription.unsubscribe();
     }
 
     /**
@@ -414,13 +401,15 @@ public class HomeActivity extends AppCompatActivity {
      * @param trackingToResume tracking to resume. null for new tracking.
      */
     public void startTracking(final Tracking trackingToResume) {
-        Tracking tracking = TimeTrackingController.start(trackingToResume, new TimeTrackingListener());
-        if (trackingToResume == null) {
-            adapter.addTracking(tracking);
-        }
-        overlayTitle.setText(TextUtils.isEmpty(tracking.getTitle())
-                        ? getString(R.string.activity_home_overlay_unnamed_tracking_title)
-                        : tracking.getTitle()
+        Tracking trackingStarted = tracker.start(trackingToResume != null ? trackingToResume : new Tracking());
+        onTrackingStarted(trackingStarted);
+    }
+
+    private void onTrackingStarted(Tracking trackingStarted) {
+        adapter.addTracking(trackingStarted);
+        overlayTitle.setText(TextUtils.isEmpty(trackingStarted.getTitle())
+                ? getString(R.string.activity_home_overlay_unnamed_tracking_title)
+                : trackingStarted.getTitle()
         );
         revealOverlay();
     }
@@ -429,7 +418,8 @@ public class HomeActivity extends AppCompatActivity {
      * stops time tracking and hides overlay
      */
     public void stopTracking() {
-        Tracking t = TimeTrackingController.stop();
+        Tracking t = tracker.stop();
+
         hideOverlay();
         int pos = adapter.indexOf(t);
         if (pos > 0) {

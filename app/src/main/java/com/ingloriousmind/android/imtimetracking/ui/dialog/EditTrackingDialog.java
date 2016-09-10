@@ -11,8 +11,11 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 
 import com.ingloriousmind.android.imtimetracking.R;
-import com.ingloriousmind.android.imtimetracking.controller.TimeTrackingController;
+import com.ingloriousmind.android.imtimetracking.TrackingApplication;
 import com.ingloriousmind.android.imtimetracking.model.Tracking;
+import com.ingloriousmind.android.imtimetracking.time.Tracker;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,6 +41,9 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
 
     private Tracking trackingToEdit;
 
+    @Inject
+    Tracker tracker;
+
     /**
      * ctor
      *
@@ -47,6 +53,7 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
     public EditTrackingDialog(Context ctx, Tracking trackingToEdit) {
         super(ctx, R.style.AppTheme);
         this.trackingToEdit = trackingToEdit;
+        ((TrackingApplication) ctx.getApplicationContext()).getComponent().inject(this);
     }
 
     /**
@@ -82,7 +89,7 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
                 Integer h = timePicker.getCurrentHour();
                 Integer m = timePicker.getCurrentMinute();
                 trackingToEdit.setDuration((h * 60 + m) * 60 * 1000);
-                TimeTrackingController.storeTracking(trackingToEdit);
+                tracker.persistTracking(trackingToEdit);
                 dismiss();
                 break;
             case R.id.dialog_tracking_edit_btn_delete:
@@ -91,7 +98,7 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Timber.d("delete: %s", trackingToEdit.toString());
-                        TimeTrackingController.removeTracking(trackingToEdit);
+                        tracker.removeTracking(trackingToEdit);
                         dismiss();
                     }
                 }, R.string.dialog_btn_cancel, null).show();

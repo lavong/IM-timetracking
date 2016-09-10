@@ -34,39 +34,12 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     /**
-     * singleton instance
-     */
-    private static DbHelper instance;
-
-    /**
      * ctor
      *
      * @param ctx a context
      */
-    private DbHelper(Context ctx) {
+    public DbHelper(Context ctx) {
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    /**
-     * initializes db helper
-     *
-     * @param ctx a context
-     */
-    public static void initialize(Context ctx) {
-        if (instance == null) {
-            Timber.d("initializing database helper instance");
-            instance = new DbHelper(ctx);
-        }
-    }
-
-    /**
-     * @return {@link com.ingloriousmind.android.imtimetracking.persistence.DbHelper} instance
-     */
-    public static DbHelper getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("DBHelper uninitialized");
-        }
-        return instance;
     }
 
     /**

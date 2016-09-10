@@ -127,6 +127,10 @@ public class Tracking implements Serializable {
         this.duration = duration;
     }
 
+    public void addDuration(long durationIncrease) {
+        this.duration += durationIncrease;
+    }
+
     public boolean isTracking() {
         return tracking;
     }
