@@ -1,0 +1,52 @@
+apply plugin: 'jacoco'
+
+android.applicationVariants.all { variant ->
+    task("jacocoReport${variant.name.capitalize()}", type: JacocoReport, dependsOn: "test${variant.name.capitalize()}UnitTest") {
+        group = "Reporting"
+        description = "Generate Jacoco coverage report"
+
+        reports {
+            xml.enabled = true
+            html.enabled = true
+        }
+
+        classDirectories = fileTree(
+                dir: "${buildDir}/intermediates/classes/${variant.buildType.name}",
+                excludes: [
+                        '**/R.class',
+                        '**/R$*.class',
+                        '**/*$ViewInjector*.*',
+                        '**/*$ModuleAdapter*.*',
+                        '**/BuildConfig.*',
+                        '**/Manifest*.*',
+                        '**/*_*.*',
+                        '**/Dagger*.*']
+        )
+
+        sourceDirectories = files([
+                "src/main/java",
+                "src/${variant.name}/java",
+                "src/${variant.flavorName}/java",
+                "src/${variant.buildType.name}/java"
+        ])
+
+        additionalSourceDirs = files([
+                "${buildDir}/generated/source/buildConfig/${variant.buildType.name}",
+                "${buildDir}/generated/source/apt/${variant.buildType.name}",
+                "${buildDir}/generated/source/r/${variant.buildType.name}"
+        ])
+
+        println("${buildDir}/generated/source/buildConfig/${variant.buildType.name}")
+
+
+        executionData = files("${buildDir}/jacoco/test${variant.name.capitalize()}UnitTest.exec")
+
+        doFirst {
+            classDirectories.getFiles().each { file ->
+                if (file.name.contains('$$')) {
+                    file.renameTo(file.path.replace('$$', '\$'))
+                }
+            }
+        }
+    }
+}

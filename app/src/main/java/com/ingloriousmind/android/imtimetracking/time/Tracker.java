@@ -78,11 +78,6 @@ public class Tracker {
                         currentTracking.addDuration(1000);
                         trackingObservable.onNext(currentTracking);
                     }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable, "timer failed");
-                    }
                 });
 
         return currentTracking;

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'groovyx.android'
 
 def gitCommitHash = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 
@@ -47,7 +48,7 @@ android {
 }
 
 ext {
-    supportLibVersion = '24.0.0'
+    supportLibVersion = '24.2.0'
     daggerVersion = '2.4'
 }
 
@@ -63,6 +64,13 @@ dependencies {
     compile 'com.esotericsoftware:kryo:4.0.0'
     compile 'com.jakewharton.timber:timber:4.1.1'
     compile 'com.jakewharton:butterknife:7.0.1'
-
     compile 'com.j256.ormlite:ormlite-android:4.48'
+
+    testCompile 'org.codehaus.groovy:groovy-all:2.4.6'
+    testCompile 'org.codehaus.groovy:groovy:2.4.6:grooid'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'cglib:cglib-nodep:3.2.2'
+    testCompile 'org.objenesis:objenesis:2.2'
 }
+
+apply from: 'quality.gradle'
