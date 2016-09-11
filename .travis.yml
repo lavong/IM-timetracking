@@ -15,6 +15,7 @@ android:
 script:
   - ./gradlew assembleDebug
   - ls -l app/build/outputs/apk/
+  - ./gradlew jacocoReportDebug
 
 cache:
   directories:
