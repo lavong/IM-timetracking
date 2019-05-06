@@ -2,12 +2,13 @@ package com.ingloriousmind.android.imtimetracking.util;
 
 import android.content.Context;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import androidx.annotation.NonNull;
 
 /**
  * ime util

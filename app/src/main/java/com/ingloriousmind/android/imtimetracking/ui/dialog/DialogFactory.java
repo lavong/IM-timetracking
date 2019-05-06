@@ -4,7 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.StringRes;
+
+import androidx.annotation.StringRes;
 
 /**
  * dialog factory

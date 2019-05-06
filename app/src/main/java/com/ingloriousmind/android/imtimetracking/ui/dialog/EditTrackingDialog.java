@@ -17,8 +17,6 @@ import com.ingloriousmind.android.imtimetracking.time.Tracker;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import timber.log.Timber;
 
 /**
@@ -28,15 +26,10 @@ import timber.log.Timber;
  */
 public class EditTrackingDialog extends Dialog implements View.OnClickListener {
 
-    @Bind(R.id.dialog_tracking_edit_title)
     EditText title;
-    @Bind(R.id.dialog_tracking_edit_time_picker)
     TimePicker timePicker;
-    @Bind(R.id.dialog_tracking_edit_btn_save)
     Button save;
-    @Bind(R.id.dialog_tracking_edit_btn_delete)
     Button delete;
-    @Bind(R.id.dialog_tracking_edit_btn_cancel)
     Button cancel;
 
     private Tracking trackingToEdit;
@@ -65,7 +58,12 @@ public class EditTrackingDialog extends Dialog implements View.OnClickListener {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_tracking_edit);
-        ButterKnife.bind(this);
+
+        title = findViewById(R.id.dialog_tracking_edit_title);
+        timePicker = findViewById(R.id.dialog_tracking_edit_time_picker);
+        save = findViewById(R.id.dialog_tracking_edit_btn_save);
+        delete = findViewById(R.id.dialog_tracking_edit_btn_delete);
+        cancel = findViewById(R.id.dialog_tracking_edit_btn_cancel);
 
         timePicker.setIs24HourView(true);
         save.setOnClickListener(this);

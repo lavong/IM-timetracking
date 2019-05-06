@@ -2,17 +2,14 @@ package com.ingloriousmind.android.imtimetracking.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -25,6 +22,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.ingloriousmind.android.imtimetracking.R;
 import com.ingloriousmind.android.imtimetracking.TrackingApplication;
 import com.ingloriousmind.android.imtimetracking.export.Exporter;
@@ -42,8 +40,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -56,19 +55,12 @@ import timber.log.Timber;
  */
 public class HomeActivity extends AppCompatActivity {
 
-    @Bind(R.id.activity_home_action_add)
     FloatingActionButton actionButtonAdd;
-    @Bind(R.id.activity_home_action_pause)
     FloatingActionButton actionButtonPause;
-    @Bind(R.id.activity_home_overlay)
     RelativeLayout overlay;
-    @Bind(R.id.activity_home_overlay_title)
     EditText overlayTitle;
-    @Bind(R.id.activity_home_overlay_time)
     TextView overlayTime;
-    @Bind(R.id.activity_home_total)
     TextView footerTotal;
-    @Bind(R.id.activity_home_recycler)
     RecyclerView recycler;
 
     private ProgressDialog progressDialog;
@@ -233,11 +225,18 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        ButterKnife.bind(this);
         ((TrackingApplication) getApplication()).getComponent().inject(this);
 
+        actionButtonAdd = findViewById(R.id.activity_home_action_add);
+        actionButtonPause = findViewById(R.id.activity_home_action_pause);
+        overlay = findViewById(R.id.activity_home_overlay);
+        overlayTitle = findViewById(R.id.activity_home_overlay_title);
+        overlayTime = findViewById(R.id.activity_home_overlay_time);
+        footerTotal = findViewById(R.id.activity_home_total);
+        recycler = findViewById(R.id.activity_home_recycler);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         layoutManager.scrollToPosition(0);
         recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);
@@ -438,6 +437,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     public void revealOverlay() {
         overlay.post(new Runnable() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void run() {
                 int cx = (overlay.getLeft() + overlay.getRight()) / 2;
@@ -461,6 +461,7 @@ public class HomeActivity extends AppCompatActivity {
         int initialRadius = overlay.getWidth();
         Animator anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, initialRadius, 0);
         anim.addListener(new AnimatorListenerAdapter() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);

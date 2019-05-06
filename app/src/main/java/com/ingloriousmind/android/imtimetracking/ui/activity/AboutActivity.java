@@ -1,14 +1,11 @@
 package com.ingloriousmind.android.imtimetracking.ui.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.ingloriousmind.android.imtimetracking.BuildConfig;
 import com.ingloriousmind.android.imtimetracking.R;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * about activity
@@ -17,9 +14,6 @@ import butterknife.ButterKnife;
  */
 public class AboutActivity extends AppCompatActivity {
 
-    @Bind(R.id.activity_about_versions)
-    TextView versions;
-
     /**
      * {@inheritDoc}
      */
@@ -27,7 +21,6 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        ButterKnife.bind(this);
 
         // set version info
         StringBuilder sb = new StringBuilder();
@@ -35,6 +28,6 @@ public class AboutActivity extends AppCompatActivity {
         sb.append("versionName: ").append(BuildConfig.VERSION_NAME).append("\n");
         sb.append("versionCode: ").append(BuildConfig.VERSION_CODE).append("\n");
         sb.append("debug: ").append(BuildConfig.DEBUG).append("\n");
-        versions.setText(sb.toString());
+        ((TextView) findViewById(R.id.activity_about_versions)).setText(sb.toString());
     }
 }

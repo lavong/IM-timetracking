@@ -1,7 +1,6 @@
 package com.ingloriousmind.android.imtimetracking.ui.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,7 @@ import com.ingloriousmind.android.imtimetracking.util.TimeUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * tracking recycler adapter
@@ -44,16 +42,15 @@ public class TrackingAdapter extends RecyclerView.Adapter<TrackingAdapter.ViewHo
      * view holder class
      */
     public final static class ViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.list_item_tracking_clock)
         TextView clock;
-        @Bind(R.id.list_item_tracking_title)
         TextView title;
-        @Bind(R.id.list_item_tracking_btn_resume_pause)
         ImageButton resumeOrPause;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            clock = itemView.findViewById(R.id.list_item_tracking_clock);
+            title = itemView.findViewById(R.id.list_item_tracking_title);
+            resumeOrPause = itemView.findViewById(R.id.list_item_tracking_btn_resume_pause);
         }
     }
 

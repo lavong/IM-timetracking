@@ -6,10 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,8 +19,10 @@ import com.ingloriousmind.android.imtimetracking.util.FileUtil;
 import java.io.File;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import timber.log.Timber;
 
 /**
@@ -34,9 +32,7 @@ import timber.log.Timber;
  */
 public class PdfArchiveActivity extends AppCompatActivity implements PdfArchiveAdapter.FileItemClickListener {
 
-    @Bind(R.id.activity_archive_pdf_recycler)
     RecyclerView recycler;
-    @Bind(R.id.activity_archive_pdf_empty)
     TextView empty;
 
     private PdfArchiveAdapter recyclerAdapter;
@@ -90,10 +86,12 @@ public class PdfArchiveActivity extends AppCompatActivity implements PdfArchiveA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archive_pdf);
-        ButterKnife.bind(this);
+
+        recycler = findViewById(R.id.activity_archive_pdf_recycler);
+        empty = findViewById(R.id.activity_archive_pdf_empty);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         layoutManager.scrollToPosition(0);
         recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);

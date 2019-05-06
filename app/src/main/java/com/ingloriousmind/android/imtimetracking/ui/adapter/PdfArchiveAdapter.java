@@ -1,7 +1,6 @@
 package com.ingloriousmind.android.imtimetracking.ui.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * pdf archive recycler adapter
@@ -42,12 +40,11 @@ public class PdfArchiveAdapter extends RecyclerView.Adapter<PdfArchiveAdapter.Vi
      * view holder class
      */
     public final static class ViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.list_item_archive_pdf_filename)
         TextView filename;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            filename = itemView.findViewById(R.id.list_item_archive_pdf_filename);
         }
     }
 

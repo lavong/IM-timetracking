@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'groovyx.android'
 
 def gitCommitHash = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
@@ -9,13 +10,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId 'com.ingloriousmind.android.imtimetracking'
         minSdkVersion 21
-        targetSdkVersion 24
+        targetSdkVersion 28
         versionCode 6
         versionName '1.2.0'
 
@@ -48,29 +48,37 @@ android {
 }
 
 ext {
-    supportLibVersion = '24.2.0'
-    daggerVersion = '2.4'
+    supportLibVersion = '27.1.0'
+    daggerVersion = '2.22.1'
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
-    compile "com.android.support:cardview-v7:${supportLibVersion}"
-    compile "com.android.support:design:${supportLibVersion}"
-    compile "com.google.dagger:dagger:${daggerVersion}"
-    apt "com.google.dagger:dagger-compiler:${daggerVersion}"
-    compile 'io.reactivex:rxandroid:1.2.0'
-    compile 'io.reactivex:rxjava:1.1.5'
-    compile 'com.esotericsoftware:kryo:4.0.0'
-    compile 'com.jakewharton.timber:timber:4.1.1'
-    compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.j256.ormlite:ormlite-android:4.48'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.core:core-ktx:1.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
 
-    testCompile 'org.codehaus.groovy:groovy-all:2.4.6'
-    testCompile 'org.codehaus.groovy:groovy:2.4.6:grooid'
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-    testCompile 'cglib:cglib-nodep:3.2.2'
-    testCompile 'org.objenesis:objenesis:2.2'
+    implementation "com.google.dagger:dagger-android:${daggerVersion}"
+    implementation "com.google.dagger:dagger-android-support:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
+
+    implementation 'io.reactivex:rxandroid:1.2.0'
+    implementation 'io.reactivex:rxjava:1.1.5'
+    implementation 'com.esotericsoftware:kryo:4.0.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'com.j256.ormlite:ormlite-android:4.48'
+
+    testImplementation 'org.codehaus.groovy:groovy-all:2.4.15'
+    testImplementation 'org.codehaus.groovy:groovy:2.4.6:grooid'
+    testImplementation 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testImplementation 'cglib:cglib-nodep:3.2.2'
+    testImplementation 'org.objenesis:objenesis:2.6'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
 
 apply from: 'quality.gradle'
